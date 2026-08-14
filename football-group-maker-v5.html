@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b6b3a" />
+  <title>Football Group Maker</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <style>
+    :root{--green:#0b6b3a;--green2:#159455;--lime:#dff6e9;--ink:#10231a;--muted:#607268;--paper:#fff;--line:#d7e3dc;--danger:#b42318;--shadow:0 12px 30px rgba(16,35,26,.10)}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#edf8f2 0,#f7faf8 240px);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+    button,input{font:inherit} button{border:0;cursor:pointer} .shell{width:min(1100px,100%);margin:auto;padding:20px 14px 130px}
+    header{display:flex;gap:12px;align-items:center;margin:4px 0 18px}.ball{width:46px;height:46px;border-radius:15px;background:var(--green);display:grid;place-items:center;font-size:25px;box-shadow:var(--shadow)}
+    h1{font-size:clamp(1.42rem,5vw,2.15rem);margin:0;letter-spacing:-.03em}.subtitle{color:var(--muted);font-size:.94rem;margin:3px 0 0}
+    .card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+    .upload{border:2px dashed #8eb9a1;text-align:center;padding:28px 16px;transition:.2s;background:#fbfefc}.upload.dragover{border-color:var(--green);background:var(--lime);transform:translateY(-2px)}
+    .upload strong{display:block;font-size:1.08rem;margin-bottom:6px}.upload small{display:block;color:var(--muted);margin:6px auto 16px;max-width:420px}.file-input{position:absolute;clip:rect(0,0,0,0)}
+    .btn{min-height:46px;border-radius:13px;padding:11px 16px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;gap:8px}.primary{background:var(--green);color:#fff}.primary:hover{background:#075a30}.secondary{background:#edf3ef;color:var(--ink)}.danger{background:#fff0ef;color:var(--danger);border:1px solid #ffd2ce}
+    .hidden{display:none!important}.error{margin-top:12px;color:var(--danger);font-weight:650}.toolbar{display:flex;flex-direction:column;gap:12px;margin:14px 0}.toolbar-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .count-control{display:flex;align-items:center;gap:10px}.segmented{display:flex;padding:4px;background:#e8f0eb;border-radius:14px}.segmented button{width:44px;height:40px;border-radius:10px;background:transparent;font-weight:800;color:#44564b}.segmented button.active{background:#fff;color:var(--green);box-shadow:0 3px 10px rgba(0,0,0,.10)}
+    .summary{color:var(--muted);font-size:.9rem}.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.groups[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}.group{border-radius:19px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:0 7px 20px rgba(16,35,26,.07)}
+    .group-head{padding:13px 14px;display:flex;justify-content:space-between;align-items:center;background:var(--group-bg);border-bottom:1px solid rgba(0,0,0,.06)}.group-title{font-size:1.02rem;font-weight:850}.badge{min-width:30px;text-align:center;border-radius:999px;background:rgba(255,255,255,.8);padding:4px 9px;font-weight:800}
+    .player-list{min-height:96px;padding:10px;display:flex;flex-direction:column;gap:8px}.player{position:relative;background:#fff;border:1px solid #dbe5df;border-radius:13px;padding:13px 42px 13px 14px;font-weight:720;box-shadow:0 2px 8px rgba(16,35,26,.06);touch-action:none;user-select:none}.player:after{content:"⋮⋮";position:absolute;right:14px;color:#91a097;letter-spacing:-2px}.player.sortable-ghost{opacity:.25}.player.sortable-chosen{box-shadow:0 10px 24px rgba(11,107,58,.20);border-color:#69ad86}
+    .empty-note{display:none;text-align:center;color:#7b8b82;font-size:.86rem;padding:22px 8px}.player-list:empty + .empty-note{display:block}
+    .bottom-bar{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:12px max(14px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.92);backdrop-filter:blur(13px);border-top:1px solid var(--line)}.bottom-inner{max-width:1072px;margin:auto;display:flex;gap:10px}.bottom-inner .primary{flex:1}
+    .toast{position:fixed;z-index:40;left:50%;bottom:92px;transform:translate(-50%,18px);opacity:0;background:#10231a;color:#fff;padding:11px 15px;border-radius:12px;font-weight:700;pointer-events:none;transition:.25s;max-width:calc(100% - 28px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:430px){.shell{padding-left:6px;padding-right:6px}.groups{gap:6px}.group-head{padding:8px 6px}.group-title{font-size:.78rem}.badge{min-width:22px;padding:2px 5px}.player-list{padding:4px;gap:4px}.player{padding:8px 18px 8px 5px;font-size:.68rem;overflow-wrap:anywhere}.player:after{right:5px}}
+    @media(min-width:660px){.shell{padding:30px 22px 120px}.toolbar{flex-direction:row;justify-content:space-between;align-items:center}.groups{gap:14px}}
+    @media(min-width:960px){.groups[data-count="3"]{grid-template-columns:repeat(3,1fr)}.groups[data-count="4"]{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header><div class="ball" aria-hidden="true">⚽</div><div><h1>Football Group Maker</h1><p class="subtitle">Upload attendance, sort players, share the groups.</p></div></header>
+
+  <section id="uploadCard" class="card upload" aria-labelledby="uploadTitle">
+    <strong id="uploadTitle">Upload attendance list</strong>
+    <small>Reads the <b>For import</b> sheet and includes only players whose Status is <b>Kommer</b>.</small>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px"><label class="btn primary" for="fileInput">Choose Excel file</label><button id="pasteBtn" class="btn secondary" type="button">Import from clipboard</button></div><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" />
+    <div id="error" class="error" role="alert"></div>
+  </section>
+
+  <section id="workspace" class="hidden">
+    <div class="toolbar">
+      <div><div class="count-control"><b>Number of groups</b><div id="groupChooser" class="segmented" aria-label="Number of groups"><button data-count="2">2</button><button data-count="3" class="active">3</button><button data-count="4">4</button></div></div><div id="summary" class="summary"></div></div>
+      
+    </div>
+    <div id="groups" class="groups" data-count="3"></div>
+  </section>
+</main>
+
+<div id="bottomBar" class="bottom-bar hidden"><div class="bottom-inner" style="justify-content:flex-start"><button id="exportBtn" class="btn primary" type="button">Copy groups as image</button></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+  const SHEET_NAME='For import', STATUS='kommer';
+  const colors=['#dcfce7','#dbeafe','#fef3c7','#f3e8ff'];
+  const state={players:[],groupCount:3,sourceName:''};
+  const $=s=>document.querySelector(s);
+  const uploadCard=$('#uploadCard'), fileInput=$('#fileInput'), workspace=$('#workspace'), groupsEl=$('#groups'), errorEl=$('#error'), bottomBar=$('#bottomBar');
+
+  function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),3000)}
+  function shortName(value){const parts=String(value??'').trim().split(/\s+/).filter(Boolean);if(!parts.length)return '';return [parts[0],...parts.slice(1).map(p=>Array.from(p)[0]?.toUpperCase()).filter(Boolean)].join(' ')}
+  function setError(message=''){errorEl.textContent=message}
+  function findHeader(rows){return rows.findIndex(row=>{const cells=row.map(x=>String(x??'').trim().toLowerCase());return cells.includes('status')&&cells.includes('navn')})}
+
+  async function readFile(file){
+    setError('');
+    try{
+      if(!window.XLSX) throw new Error('The Excel reader could not load. Check your internet connection and try again.');
+      const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});
+      if(!wb.SheetNames.includes(SHEET_NAME)) throw new Error(`Sheet “${SHEET_NAME}” was not found.`);
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[SHEET_NAME],{header:1,defval:'',raw:false});
+      const headerIndex=findHeader(rows);
+      if(headerIndex<0) throw new Error('Could not find the Status and Navn columns.');
+      const headers=rows[headerIndex].map(x=>String(x).trim().toLowerCase());
+      const statusCol=headers.indexOf('status'), nameCol=headers.indexOf('navn');
+      const players=rows.slice(headerIndex+1)
+        .filter(r=>String(r[statusCol]??'').trim().toLowerCase()===STATUS)
+        .map(r=>shortName(r[nameCol])).filter(Boolean);
+      if(!players.length) throw new Error('No players with Status = Kommer were found.');
+      state.players=players;state.sourceName=file.name;state.groupCount=3;
+      showWorkspace();
+    }catch(err){setError(err?.message||'The file could not be read.');fileInput.value=''}
+  }
+
+  
+  async function importFromClipboard(){
+    setError('');
+    try{
+      const textData=await navigator.clipboard.readText();
+      const names=textData.split(/\r?\n/).map(v=>v.trim()).filter(Boolean).map(shortName);
+      if(!names.length) throw new Error('Clipboard contains no player names.');
+      state.players=names;state.sourceName='clipboard';state.groupCount=3;showWorkspace();
+    }catch(err){setError(err?.message||'Unable to read clipboard.');}
+  }
+
+  function showWorkspace(){uploadCard.classList.add('hidden');workspace.classList.remove('hidden');bottomBar.classList.remove('hidden');document.querySelectorAll('#groupChooser button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===state.groupCount));renderGroups(state.players)}
+  function renderGroups(players){
+    groupsEl.dataset.count=String(state.groupCount);groupsEl.innerHTML='';
+    for(let i=0;i<state.groupCount;i++){
+      const section=document.createElement('section');section.className='group';section.style.setProperty('--group-bg',colors[i]);
+      section.innerHTML=`<div class="group-head"><span class="group-title">Group ${i+1}</span><span class="badge">0</span></div><div class="player-list" data-group="${i}"></div><div class="empty-note">Drop players here</div>`;
+      groupsEl.append(section);
+    }
+    players.forEach((name,i)=>addPlayer(name,groupsEl.querySelector(`[data-group="${i%state.groupCount}"]`)));
+    activateSortables();updateCounts();
+  }
+  function addPlayer(name,list){const el=document.createElement('div');el.className='player';el.textContent=name;el.dataset.name=name;list.append(el)}
+  function activateSortables(){groupsEl.querySelectorAll('.player-list').forEach(list=>new Sortable(list,{group:'players',animation:170,delay:80,delayOnTouchOnly:true,touchStartThreshold:4,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:updateCounts}))}
+  function updateCounts(){let total=0;groupsEl.querySelectorAll('.group').forEach(g=>{const n=g.querySelectorAll('.player').length;g.querySelector('.badge').textContent=n;total+=n});$('#summary').textContent=`${total} attending players • drag to rearrange`}
+  function currentPlayers(){return [...groupsEl.querySelectorAll('.player')].map(x=>x.dataset.name)}
+  function changeGroupCount(count){const players=currentPlayers();state.groupCount=count;document.querySelectorAll('#groupChooser button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===count));renderGroups(players)}
+  function startOver(){if(!confirm('Start over and clear the current groups?'))return;state.players=[];state.sourceName='';fileInput.value='';groupsEl.innerHTML='';workspace.classList.add('hidden');bottomBar.classList.add('hidden');uploadCard.classList.remove('hidden');setError('');window.scrollTo({top:0,behavior:'smooth'})}
+
+  function roundRect(ctx,x,y,w,h,r,fill){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill()}
+  function buildImage(){
+    const ratio=Math.min(2,window.devicePixelRatio||1); const W=1200, margin=54, gap=24, cols=state.groupCount;
+    const groupData=[...groupsEl.querySelectorAll('.group')].map((g,i)=>({title:`Group ${i+1}`,names:[...g.querySelectorAll('.player')].map(p=>p.dataset.name)}));
+    const maxRows=Math.max(...groupData.map(x=>x.names.length),1), headerH=170, groupHeader=76, rowH=54, bottom=60;
+    const H=headerH+groupHeader+maxRows*rowH+bottom;
+    const canvas=document.createElement('canvas');canvas.width=W*ratio;canvas.height=H*ratio;const ctx=canvas.getContext('2d');ctx.scale(ratio,ratio);
+    ctx.fillStyle='#f4faf6';ctx.fillRect(0,0,W,H);ctx.fillStyle='#0b6b3a';ctx.fillRect(0,0,W,20);
+    ctx.fillStyle='#10231a';ctx.font='800 45px system-ui, sans-serif';ctx.fillText('Football practice groups',margin,86);
+    ctx.fillStyle='#607268';ctx.font='500 24px system-ui, sans-serif';ctx.fillText(`${state.players.length} attending players`,margin,126);
+    const innerW=W-2*margin, colW=(innerW-gap*(cols-1))/cols;
+    groupData.forEach((group,i)=>{
+      const x=margin+i*(colW+gap), y=headerH;
+      roundRect(ctx,x,y,colW,groupHeader+maxRows*rowH,18,'#ffffff');
+      ctx.fillStyle=colors[i];ctx.beginPath();ctx.roundRect(x,y,colW,groupHeader,[18,18,0,0]);ctx.fill();
+      ctx.fillStyle='#10231a';ctx.font='800 27px system-ui, sans-serif';ctx.fillText(group.title,x+20,y+47);
+      ctx.font='700 22px system-ui, sans-serif';ctx.textAlign='right';ctx.fillText(String(group.names.length),x+colW-20,y+45);ctx.textAlign='left';
+      group.names.forEach((name,j)=>{const yy=y+groupHeader+j*rowH;ctx.strokeStyle='#e1e9e4';ctx.beginPath();ctx.moveTo(x+18,yy+rowH);ctx.lineTo(x+colW-18,yy+rowH);ctx.stroke();ctx.fillStyle='#10231a';ctx.font='650 23px system-ui, sans-serif';ctx.fillText(name,x+20,yy+35,colW-38)});
+    });
+    ctx.fillStyle='#839087';ctx.font='500 18px system-ui, sans-serif';ctx.fillText('Created with Football Group Maker',margin,H-25);
+    return canvas;
+  }
+  async function exportImage(){
+    const button=$('#exportBtn'), original=button.textContent;button.disabled=true;button.textContent='Creating image…';
+    try{
+      const canvas=buildImage(); const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Image creation failed')),'image/png'));
+      if(navigator.clipboard&&window.ClipboardItem&&window.isSecureContext){await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);toast('Groups copied to clipboard')}
+      else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='football-groups.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Image downloaded. Clipboard access requires HTTPS or localhost.')}
+    }catch(err){toast(err?.message||'Could not export image')}
+    finally{button.disabled=false;button.textContent=original}
+  }
+
+  fileInput.addEventListener('change',e=>e.target.files[0]&&readFile(e.target.files[0]));
+  uploadCard.addEventListener('dragover',e=>{e.preventDefault();uploadCard.classList.add('dragover')});
+  uploadCard.addEventListener('dragleave',()=>uploadCard.classList.remove('dragover'));
+  uploadCard.addEventListener('drop',e=>{e.preventDefault();uploadCard.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)readFile(f)});
+  $('#groupChooser').addEventListener('click',e=>{const b=e.target.closest('button[data-count]');if(b)changeGroupCount(Number(b.dataset.count))});
+  $('#pasteBtn').addEventListener('click',importFromClipboard);$('#exportBtn').addEventListener('click',exportImage);
+})();
+</script>
+</body>
+</html>
