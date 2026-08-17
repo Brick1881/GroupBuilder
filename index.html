@@ -20,10 +20,10 @@
     .hidden{display:none!important}.error{margin-top:12px;color:var(--danger);font-weight:650}.toolbar{display:flex;flex-direction:column;gap:12px;margin:14px 0}.toolbar-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     .exercise-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 10px}.tabs{display:flex;gap:6px;min-width:0}.tab{min-height:42px;padding:9px 13px;border-radius:12px;background:#e8f0eb;color:#44564b;font-weight:800;white-space:nowrap}.tab.active{background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(11,107,58,.2)}
     .trash{width:50px;height:50px;border-radius:15px;background:#fff0ef;color:var(--danger);border:2px dashed #e2928b;display:grid;place-items:center;font-size:25px;flex:0 0 auto;transition:.18s}.trash.trash-active{background:#ffd9d5;border-color:var(--danger);transform:scale(1.07)}.trash .trash-label{position:absolute;clip:rect(0,0,0,0)}
-    .count-control{display:flex;align-items:center;gap:10px}.segmented{display:flex;padding:4px;background:#e8f0eb;border-radius:14px}.segmented button{width:44px;height:40px;border-radius:10px;background:transparent;font-weight:800;color:#44564b}.segmented button.active{background:#fff;color:var(--green);box-shadow:0 3px 10px rgba(0,0,0,.10)}
+    .count-control{display:flex;align-items:center;gap:10px;width:100%}.add-player-btn{margin-left:auto;background:var(--green);color:#fff;min-width:48px;min-height:40px;padding:8px 12px;border-radius:11px;font-size:20px;font-weight:800}.add-player-btn:hover{background:#075a30}.segmented{display:flex;padding:4px;background:#e8f0eb;border-radius:14px}.segmented button{width:44px;height:40px;border-radius:10px;background:transparent;font-weight:800;color:#44564b}.segmented button.active{background:#fff;color:var(--green);box-shadow:0 3px 10px rgba(0,0,0,.10)}
     .summary{color:var(--muted);font-size:.9rem}.event-info{margin-top:10px;display:grid;gap:3px}.event-title{font-size:1.08rem;font-weight:850;color:var(--ink)}.event-meta{font-size:.94rem;color:var(--muted)}.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.groups[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}.group{border-radius:19px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:0 7px 20px rgba(16,35,26,.07)}
     .group-head{padding:13px 14px;display:flex;justify-content:space-between;align-items:center;background:var(--group-bg);border-bottom:1px solid rgba(0,0,0,.06)}.group-title{font-size:1.02rem;font-weight:850}.badge{min-width:30px;text-align:center;border-radius:999px;background:rgba(255,255,255,.8);padding:4px 9px;font-weight:800}
-    .player-list{min-height:120px;padding:10px 10px 34px;display:flex;flex-direction:column;gap:8px;touch-action:pan-y}.player{position:relative;background:#fff;border:1px solid #dbe5df;border-radius:13px;padding:13px 42px 13px 14px;font-weight:720;box-shadow:0 2px 8px rgba(16,35,26,.06);touch-action:pan-y;user-select:none}.player:after{content:"⋮⋮";position:absolute;right:14px;color:#91a097;letter-spacing:-2px}.player.sortable-ghost{opacity:.25}.player.sortable-chosen{box-shadow:0 10px 24px rgba(11,107,58,.20);border-color:#69ad86}
+    .player-list{min-height:120px;padding:10px 10px 34px;display:flex;flex-direction:column;gap:8px;touch-action:pan-y}.player{position:relative;background:#fff;border:1px solid #dbe5df;border-radius:13px;padding:13px 42px 13px 14px;font-weight:720;box-shadow:0 2px 8px rgba(16,35,26,.06);touch-action:pan-y;user-select:none}.player:after{content:"⋮⋮";position:absolute;right:14px;color:#91a097;letter-spacing:-2px}.player.manual-player{background:#ffe4e1;border-color:#efaaa3}.player.sortable-ghost{opacity:.25}.player.sortable-chosen{box-shadow:0 10px 24px rgba(11,107,58,.20);border-color:#69ad86}
     .empty-note{display:none;text-align:center;color:#7b8b82;font-size:.86rem;padding:22px 8px}.player-list:empty + .empty-note{display:block}
     .bottom-bar{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:12px max(14px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.92);backdrop-filter:blur(13px);border-top:1px solid var(--line)}.bottom-inner{max-width:1072px;margin:auto;display:flex;gap:10px}.bottom-inner .primary{flex:1}
     .toast{position:fixed;z-index:40;left:50%;bottom:92px;transform:translate(-50%,18px);opacity:0;background:#10231a;color:#fff;padding:11px 15px;border-radius:12px;font-weight:700;pointer-events:none;transition:.25s;max-width:calc(100% - 28px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
@@ -48,7 +48,7 @@
     <div id="summary" class="summary"></div>
     <div id="groups" class="groups" data-count="3"></div>
 	<div class="toolbar">
-      <div><div class="count-control"><b>Number of groups</b><div id="groupChooser" class="segmented" aria-label="Number of groups"><button data-count="2">2</button><button data-count="3" class="active">3</button><button data-count="4">4</button></div></div></div>
+      <div><div class="count-control"><b>Number of groups</b><div id="groupChooser" class="segmented" aria-label="Number of groups"><button data-count="2">2</button><button data-count="3" class="active">3</button><button data-count="4">4</button></div><button id="addPlayerBtn" class="add-player-btn" type="button" title="Add player" aria-label="Add player">👤➕</button></div></div>
       
     </div>
     <div id="eventInfo" class="event-info" aria-live="polite" style="margin-top:16px"></div>
@@ -98,7 +98,7 @@
   
   function renderEventInfo(){const info=state.eventInfo;eventInfoEl.innerHTML='';if(info.title){const el=document.createElement('div');el.className='event-title';el.textContent=info.title;eventInfoEl.append(el)}if(info.dateTime){const el=document.createElement('div');el.className='event-meta';el.textContent=info.dateTime;eventInfoEl.append(el)}if(info.location){const el=document.createElement('div');el.className='event-meta';el.textContent=info.location;eventInfoEl.append(el)}}
   function distributePlayers(players,count){const groups=Array.from({length:count},()=>[]);players.forEach((name,i)=>groups[i%count].push(name));return groups}
-  function captureGroups(){return [...groupsEl.querySelectorAll('.player-list')].map(list=>[...list.querySelectorAll('.player')].map(p=>p.dataset.name))}
+  function captureGroups(){return [...groupsEl.querySelectorAll('.player-list')].map(list=>[...list.querySelectorAll('.player')].map(p=>({name:p.dataset.name,manual:p.dataset.manual==='true'})))}
   function saveActiveExercise(){if(state.exercises[state.activeTab]){state.exercises[state.activeTab].groupCount=state.groupCount;state.exercises[state.activeTab].groups=captureGroups()}}
   function showWorkspace(){uploadCard.classList.add('hidden');workspace.classList.remove('hidden');bottomBar.classList.remove('hidden');renderEventInfo();switchExercise(0,false)}
   function switchExercise(index,save=true){if(save&&workspace&&!workspace.classList.contains('hidden'))saveActiveExercise();state.activeTab=index;const ex=state.exercises[index];state.groupCount=ex.groupCount;tabsEl.querySelectorAll('.tab').forEach(b=>{const active=Number(b.dataset.tab)===index;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});document.querySelectorAll('#groupChooser button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===state.groupCount));renderGroups(ex.groups)}
@@ -108,11 +108,12 @@
       const section=document.createElement('section');section.className='group';section.style.setProperty('--group-bg',colors[i]);
       section.innerHTML=`<div class="group-head"><span class="group-title">Group ${i+1}</span><span class="badge">0</span></div><div class="player-list" data-group="${i}"></div><div class="empty-note">Drop players here</div>`;
       groupsEl.append(section);
-      (groupData[i]||[]).forEach(name=>addPlayer(name,section.querySelector('.player-list')));
+      (groupData[i]||[]).forEach(player=>addPlayer(typeof player==='string'?player:player.name,section.querySelector('.player-list'),typeof player==='object'&&player.manual));
     }
     activateSortables();updateCounts();
   }
-  function addPlayer(name,list){const el=document.createElement('div');el.className='player';el.textContent=name;el.dataset.name=name;list.append(el)}
+  function addPlayer(name,list,manual=false){const el=document.createElement('div');el.className='player'+(manual?' manual-player':'');el.textContent=name;el.dataset.name=name;el.dataset.manual=String(manual);list.append(el)}
+  function addManualPlayer(){const entered=prompt('Enter player name');const name=String(entered??'').trim();if(!name)return;const lists=[...groupsEl.querySelectorAll('.player-list')];if(!lists.length)return;const target=lists.reduce((a,b)=>a.children.length<=b.children.length?a:b);addPlayer(name,target,true);updateCounts();saveActiveExercise();toast(`${name} added`)}
   function activateSortables(){
     groupsEl.querySelectorAll('.player-list').forEach(list=>new Sortable(list,{group:'players',animation:170,delay:180,delayOnTouchOnly:true,touchStartThreshold:8,emptyInsertThreshold:40,swapThreshold:.65,invertSwap:true,fallbackOnBody:true,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:()=>{updateCounts();saveActiveExercise()}}));
     new Sortable(trashEl,{group:'players',sort:false,animation:150,onAdd:evt=>{evt.item.remove();trashEl.classList.remove('trash-active');updateCounts();saveActiveExercise();toast('Player deleted')},onMove:()=>{trashEl.classList.add('trash-active');return true},onEnd:()=>trashEl.classList.remove('trash-active')});
@@ -144,7 +145,7 @@
       ctx.fillStyle=colors[i];ctx.beginPath();ctx.roundRect(x,y,colW,groupHeader,[18,18,0,0]);ctx.fill();
       ctx.fillStyle='#10231a';ctx.font='800 27px system-ui, sans-serif';ctx.fillText(group.title,x+20,y+47);
       ctx.font='700 22px system-ui, sans-serif';ctx.textAlign='right';ctx.fillText(String(group.names.length),x+colW-20,y+45);ctx.textAlign='left';
-      group.names.forEach((name,j)=>{const yy=y+groupHeader+j*rowH;ctx.strokeStyle='#e1e9e4';ctx.beginPath();ctx.moveTo(x+18,yy+rowH);ctx.lineTo(x+colW-18,yy+rowH);ctx.stroke();ctx.fillStyle='#10231a';ctx.font='650 23px system-ui, sans-serif';ctx.fillText(name,x+20,yy+35,colW-38)});
+      group.names.forEach((name,j)=>{const yy=y+groupHeader+j*rowH;const playerEl=[...groupsEl.querySelectorAll('.group')][i].querySelectorAll('.player')[j];if(playerEl?.dataset.manual==='true'){ctx.fillStyle='#ffe4e1';ctx.fillRect(x+1,yy+1,colW-2,rowH-1)}ctx.strokeStyle='#e1e9e4';ctx.beginPath();ctx.moveTo(x+18,yy+rowH);ctx.lineTo(x+colW-18,yy+rowH);ctx.stroke();ctx.fillStyle='#10231a';ctx.font='650 23px system-ui, sans-serif';ctx.fillText(name,x+20,yy+35,colW-38)});
     });
     ctx.fillStyle='#839087';ctx.font='500 18px system-ui, sans-serif';ctx.fillText('Created with Football Group Maker',margin,H-25);
     return canvas;
@@ -167,6 +168,7 @@
   uploadCard.addEventListener('drop',e=>{e.preventDefault();uploadCard.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)readFile(f)});
   tabsEl.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)switchExercise(Number(b.dataset.tab))});
   $('#groupChooser').addEventListener('click',e=>{const b=e.target.closest('button[data-count]');if(b)changeGroupCount(Number(b.dataset.count))});
+  $('#addPlayerBtn').addEventListener('click',addManualPlayer);
   $('#exportBtn').addEventListener('click',exportImage);$('#downloadBtn').addEventListener('click',downloadImage);$('#resetBtn').addEventListener('click',startOver);
 })();
 </script>
