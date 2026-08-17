@@ -145,7 +145,7 @@
     colorMenu.classList.remove('hidden');
 }
   function bindColorHold(player){
-    const start=e=>{if(e.pointerType==='mouse'&&e.button!==0)return;holdStart={x:e.clientX,y:e.clientY};clearTimeout(holdTimer);holdTimer=setTimeout(()=>openColorMenu(player,e.clientX,e.clientY),500)};
+    const start=e=>{if(e.pointerType==='mouse'&&e.button!==0)return;holdStart={x:e.clientX,y:e.clientY};clearTimeout(holdTimer);holdTimer=setTimeout(()=>openColorMenu(player,e.clientX,e.clientY),1000)};
     const move=e=>{if(holdStart&&Math.hypot(e.clientX-holdStart.x,e.clientY-holdStart.y)>10){clearTimeout(holdTimer);holdStart=null}};
     const end=()=>{clearTimeout(holdTimer);holdStart=null};
     player.addEventListener('pointerdown',start);player.addEventListener('pointermove',move);player.addEventListener('pointerup',end);player.addEventListener('pointercancel',end);
