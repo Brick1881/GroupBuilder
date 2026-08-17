@@ -39,7 +39,7 @@
   <section id="uploadCard" class="card upload" aria-labelledby="uploadTitle">
     <strong id="uploadTitle">Upload attendance list</strong>
     <small>Reads the <b>For import</b> sheet from a Spond Event and includes only players whose Status is <b>Attending</b>.</small>
-    <label class="btn primary" for="fileInput">Choose Excel file</label><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" />
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><label class="btn primary" for="fileInput">Choose Excel file</label><button id="blankListBtn" class="btn secondary" type="button">Start with blank list</button></div><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" />
     <div id="error" class="error" role="alert"></div>
   </section>
 
@@ -96,6 +96,13 @@
   }
 
   
+  
+  function startBlank(){
+    state.players=[];state.sourceName='';state.groupCount=3;state.eventInfo={title:'',dateTime:'',location:''};state.activeTab=0;
+    state.exercises=Array.from({length:3},()=>({groupCount:3,groups:[[],[],[]]}));
+    showWorkspace();
+  }
+
   function renderEventInfo(){const info=state.eventInfo;eventInfoEl.innerHTML='';if(info.title){const el=document.createElement('div');el.className='event-title';el.textContent=info.title;eventInfoEl.append(el)}if(info.dateTime){const el=document.createElement('div');el.className='event-meta';el.textContent=info.dateTime;eventInfoEl.append(el)}if(info.location){const el=document.createElement('div');el.className='event-meta';el.textContent=info.location;eventInfoEl.append(el)}}
   function distributePlayers(players,count){const groups=Array.from({length:count},()=>[]);players.forEach((name,i)=>groups[i%count].push(name));return groups}
   function captureGroups(){return [...groupsEl.querySelectorAll('.player-list')].map(list=>[...list.querySelectorAll('.player')].map(p=>({name:p.dataset.name,manual:p.dataset.manual==='true'})))}
@@ -168,7 +175,7 @@
   uploadCard.addEventListener('drop',e=>{e.preventDefault();uploadCard.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)readFile(f)});
   tabsEl.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)switchExercise(Number(b.dataset.tab))});
   $('#groupChooser').addEventListener('click',e=>{const b=e.target.closest('button[data-count]');if(b)changeGroupCount(Number(b.dataset.count))});
-  $('#addPlayerBtn').addEventListener('click',addManualPlayer);
+  $('#addPlayerBtn').addEventListener('click',addManualPlayer);if($('#blankListBtn'))$('#blankListBtn').addEventListener('click',startBlank);
   $('#exportBtn').addEventListener('click',exportImage);$('#downloadBtn').addEventListener('click',downloadImage);$('#resetBtn').addEventListener('click',startOver);
 })();
 </script>
