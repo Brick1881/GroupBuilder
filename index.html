@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0b6b3a" />
   <title>Football Group Maker</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <style>
     :root{--green:#0b6b3a;--green2:#159455;--lime:#dff6e9;--ink:#10231a;--muted:#607268;--paper:#fff;--line:#d7e3dc;--danger:#b42318;--shadow:0 12px 30px rgba(16,35,26,.10)}
-    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#edf8f2 0,#f7faf8 240px);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
-    button,input{font:inherit} button{border:0;cursor:pointer} .shell{width:min(1100px,100%);margin:auto;padding:20px 14px 130px}
+    *{box-sizing:border-box} html,body{max-width:100%;overflow-x:hidden} body{margin:0;background:linear-gradient(180deg,#edf8f2 0,#f7faf8 240px);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;overflow-x:hidden}
+    button,input{font:inherit} button{border:0;cursor:pointer} .shell{width:min(1100px,100%);max-width:100%;margin:auto;padding:20px 14px 130px;overflow-x:hidden}
     header{display:flex;gap:12px;align-items:center;margin:4px 0 18px}.logo-wrap{width:54px;height:54px;border-radius:15px;background:#fff;display:grid;place-items:center;box-shadow:var(--shadow);overflow:hidden;padding:4px;flex:0 0 auto}.logo-wrap img{display:block;width:100%;height:100%;object-fit:contain}
     h1{font-size:clamp(1.42rem,5vw,2.15rem);margin:0;letter-spacing:-.03em}.subtitle{color:var(--muted);font-size:.94rem;margin:3px 0 0}
     .card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
