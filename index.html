@@ -20,7 +20,7 @@
     .hidden{display:none!important}.error{margin-top:12px;color:var(--danger);font-weight:650}.toolbar{display:flex;flex-direction:column;gap:12px;margin:14px 0}.toolbar-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     .exercise-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 10px}.tabs{display:flex;gap:6px;min-width:0}.tab{min-height:42px;padding:9px 13px;border-radius:12px;background:#e8f0eb;color:#44564b;font-weight:800;white-space:nowrap}.tab.active{background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(11,107,58,.2)}
     .trash{width:50px;height:50px;border-radius:15px;background:#fff0ef;color:var(--danger);border:2px dashed #e2928b;display:grid;place-items:center;font-size:25px;flex:0 0 auto;transition:.18s}.trash.trash-active{background:#ffd9d5;border-color:var(--danger);transform:scale(1.07)}.trash .trash-label{position:absolute;clip:rect(0,0,0,0)}
-    .count-control{display:flex;align-items:center;gap:10px;width:100%}.add-player-btn{margin-left:auto;background:var(--green);color:#fff;min-width:48px;min-height:40px;padding:8px 12px;border-radius:11px;font-size:20px;font-weight:800}.add-player-btn:hover{background:#075a30}.segmented{display:flex;padding:4px;background:#e8f0eb;border-radius:14px}.segmented button{width:44px;height:40px;border-radius:10px;background:transparent;font-weight:800;color:#44564b}.segmented button.active{background:#fff;color:var(--green);box-shadow:0 3px 10px rgba(0,0,0,.10)}
+    .count-control{display:flex;align-items:center;gap:10px;width:100%}.player-actions{margin-left:auto;display:flex;flex-direction:column;gap:6px}.add-player-btn,.copy-next-btn,.csv-action-btn{background:var(--green);color:#fff;min-width:48px;min-height:40px;padding:8px 12px;border-radius:11px;font-size:20px;font-weight:800}.copy-next-btn,.csv-action-btn{font-size:18px}.add-player-btn:hover,.copy-next-btn:hover,.csv-action-btn:hover{background:#075a30}.copy-next-btn:disabled{background:#9db8aa;cursor:not-allowed}.segmented{display:flex;padding:4px;background:#e8f0eb;border-radius:14px}.segmented button{width:44px;height:40px;border-radius:10px;background:transparent;font-weight:800;color:#44564b}.segmented button.active{background:#fff;color:var(--green);box-shadow:0 3px 10px rgba(0,0,0,.10)}
     .summary{color:var(--muted);font-size:.9rem}.event-info{margin-top:10px;display:grid;gap:3px}.event-title{font-size:1.08rem;font-weight:850;color:var(--ink)}.event-meta{font-size:.94rem;color:var(--muted)}.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.groups[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}.group{border-radius:19px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:0 7px 20px rgba(16,35,26,.07)}
     .group-head{padding:13px 14px;display:flex;justify-content:space-between;align-items:center;background:var(--group-bg);border-bottom:1px solid rgba(0,0,0,.06)}.group-title{font-size:1.02rem;font-weight:850}.badge{min-width:30px;text-align:center;border-radius:999px;background:rgba(255,255,255,.8);padding:4px 9px;font-weight:800}
     .player-list{min-height:120px;padding:10px 10px 34px;display:flex;flex-direction:column;gap:8px;touch-action:pan-y}.player{position:relative;background:#fff;border:1px solid #dbe5df;border-radius:13px;padding:13px 42px 13px 14px;font-weight:720;box-shadow:0 2px 8px rgba(16,35,26,.06);touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.player *{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.player:after{content:"⋮⋮";position:absolute;right:14px;color:#91a097;letter-spacing:-2px}.player.manual-player{background:#ffe4e1;border-color:#efaaa3}.player[data-color="red"]{background:#ffd9d5;border-color:#e79a91}.player[data-color="blue"]{background:#dbeafe;border-color:#91b8e8}.player[data-color="green"]{background:#dcfce7;border-color:#8fd0a4}.player[data-color="yellow"]{background:#fef3c7;border-color:#dfc66e}.player[data-color="white"]{background:#ffffff!important;border-color:#dbe5df!important}
@@ -40,7 +40,7 @@
   <section id="uploadCard" class="card upload" aria-labelledby="uploadTitle">
     <strong id="uploadTitle">Upload attendance list</strong>
     <small>Reads the <b>For import</b> sheet from a Spond Event and includes only players whose Status is <b>Attending</b>.</small>
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><label class="btn primary" for="fileInput">Choose Excel file</label><button id="blankListBtn" class="btn secondary" type="button">Start with blank list</button></div><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" />
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><label class="btn primary" for="fileInput">Choose Excel file</label><label class="btn secondary" for="csvInput">Continue from CSV</label><button id="blankListBtn" class="btn secondary" type="button">Start with blank list</button></div><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" /><input id="csvInput" class="file-input" type="file" accept=".csv,text/csv" />
     <div id="error" class="error" role="alert"></div>
   </section>
 
@@ -49,7 +49,7 @@
     <div id="summary" class="summary"></div>
     <div id="groups" class="groups" data-count="3"></div>
 	<div class="toolbar">
-      <div><div class="count-control"><b>Number of groups</b><div id="groupChooser" class="segmented" aria-label="Number of groups"><button data-count="2">2</button><button data-count="3" class="active">3</button><button data-count="4">4</button></div><button id="addPlayerBtn" class="add-player-btn" type="button" title="Add player" aria-label="Add player">👤➕</button></div></div>
+      <div><div class="count-control"><b>Number of groups</b><div id="groupChooser" class="segmented" aria-label="Number of groups"><button data-count="2">2</button><button data-count="3" class="active">3</button><button data-count="4">4</button></div><div class="player-actions"><button id="addPlayerBtn" class="add-player-btn" type="button" title="Add player" aria-label="Add player">👤➕</button><button id="copyNextBtn" class="copy-next-btn" type="button" title="Copy current groups to next exercise" aria-label="Copy current groups to next exercise">📋➡️</button><button id="exportCsvBtn" class="csv-action-btn" type="button" title="Download project CSV" aria-label="Download project CSV">📄⬇️</button></div></div></div>
       
     </div>
     <div id="eventInfo" class="event-info" aria-live="polite" style="margin-top:16px"></div>
@@ -67,7 +67,7 @@
   const colors=['#dcfce7','#dbeafe','#fef3c7','#f3e8ff'];
   const state={players:[],groupCount:3,sourceName:'',eventInfo:{title:'',dateTime:'',location:''},activeTab:0,exercises:[]};
   const $=s=>document.querySelector(s);
-  const uploadCard=$('#uploadCard'), fileInput=$('#fileInput'), workspace=$('#workspace'), groupsEl=$('#groups'), errorEl=$('#error'), bottomBar=$('#bottomBar'), eventInfoEl=$('#eventInfo'), tabsEl=$('#exerciseTabs'), trashEl=$('#trash'), colorMenu=$('#colorMenu');
+  const uploadCard=$('#uploadCard'), fileInput=$('#fileInput'), csvInput=$('#csvInput'), workspace=$('#workspace'), groupsEl=$('#groups'), errorEl=$('#error'), bottomBar=$('#bottomBar'), eventInfoEl=$('#eventInfo'), tabsEl=$('#exerciseTabs'), trashEl=$('#trash'), colorMenu=$('#colorMenu');
 
   function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),3000)}
   function shortName(value){const parts=String(value??'').trim().split(/\s+/).filter(Boolean);if(!parts.length)return '';return [parts[0],...parts.slice(1).map(p=>Array.from(p)[0]?.toUpperCase()).filter(Boolean)].join(' ')}
@@ -99,6 +99,38 @@
 
   
   
+  function csvEscape(value){return `"${String(value??'').replace(/"/g,'""')}"`}
+  function downloadProjectCsv(){
+    saveActiveExercise();
+    const rows=[['RecordType','Exercise','Group','Position','Player','Manual','Color','GroupCount','EventTitle','EventDateTime','EventLocation']];
+    rows.push(['PROJECT','','','','','','','',state.eventInfo.title,state.eventInfo.dateTime,state.eventInfo.location]);
+    state.exercises.forEach((exercise,exerciseIndex)=>{
+      rows.push(['EXERCISE',exerciseIndex+1,'','','','','',exercise.groupCount,'','','']);
+      exercise.groups.forEach((group,groupIndex)=>group.forEach((player,position)=>{
+        const p=typeof player==='string'?{name:player,manual:false,color:''}:player;
+        rows.push(['PLAYER',exerciseIndex+1,groupIndex+1,position+1,p.name,p.manual?'true':'false',p.color||'',exercise.groupCount,'','','']);
+      }));
+    });
+    const csv='\uFEFF'+rows.map(row=>row.map(csvEscape).join(',')).join('\r\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='football-group-project.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Project CSV downloaded');
+  }
+  function parseCsv(text){
+    const rows=[];let row=[],field='',quoted=false;
+    for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"'){quoted=false}else field+=c}else if(c==='"'){quoted=true}else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field.replace(/\r$/,''));rows.push(row);row=[];field=''}else field+=c}
+    if(field||row.length){row.push(field.replace(/\r$/,''));rows.push(row)}return rows;
+  }
+  async function importProjectCsv(file){
+    setError('');
+    try{
+      const rows=parseCsv((await file.text()).replace(/^\uFEFF/,''));if(!rows.length)throw new Error('CSV file is empty.');
+      const expected=['RecordType','Exercise','Group','Position','Player','Manual','Color','GroupCount','EventTitle','EventDateTime','EventLocation'];
+      if(!expected.every((h,i)=>rows[0][i]===h))throw new Error('This CSV is not a Football Group Maker project file.');
+      const project=rows.find(r=>r[0]==='PROJECT')||[];const exercises=Array.from({length:3},()=>({groupCount:3,groups:[[],[],[]]}));
+      rows.filter(r=>r[0]==='EXERCISE').forEach(r=>{const ei=Number(r[1])-1,gc=Math.max(2,Math.min(4,Number(r[7])||3));if(ei>=0&&ei<3)exercises[ei]={groupCount:gc,groups:Array.from({length:gc},()=>[])} });
+      rows.filter(r=>r[0]==='PLAYER').forEach(r=>{const ei=Number(r[1])-1,gi=Number(r[2])-1;if(ei<0||ei>=3)return;const ex=exercises[ei];if(gi<0||gi>=ex.groups.length)return;ex.groups[gi].push({name:r[4]||'',manual:String(r[5]).toLowerCase()==='true',color:r[6]||''})});
+      state.players=[];state.sourceName=file.name;state.eventInfo={title:project[8]||'',dateTime:project[9]||'',location:project[10]||''};state.activeTab=0;state.exercises=exercises;state.groupCount=exercises[0].groupCount;showWorkspace();toast('Project CSV loaded');
+    }catch(err){setError(err?.message||'Could not import CSV.');csvInput.value=''}
+  }
   function startBlank(){
     state.players=[];state.sourceName='';state.groupCount=3;state.eventInfo={title:'',dateTime:'',location:''};state.activeTab=0;
     state.exercises=Array.from({length:3},()=>({groupCount:3,groups:[[],[],[]]}));
@@ -151,6 +183,7 @@
     player.addEventListener('pointerdown',start);player.addEventListener('pointermove',move);player.addEventListener('pointerup',end);player.addEventListener('pointercancel',end);
   }
   function addManualPlayer(){const entered=prompt('Enter player name');const name=String(entered??'').trim();if(!name)return;const lists=[...groupsEl.querySelectorAll('.player-list')];if(!lists.length)return;const target=lists.reduce((a,b)=>a.children.length<=b.children.length?a:b);addPlayer(name,target,true);updateCounts();saveActiveExercise();toast(`${name} added`)}
+  function copyToNextExercise(){if(state.activeTab>=state.exercises.length-1){toast('No next exercise available');return}saveActiveExercise();const source=state.exercises[state.activeTab];state.exercises[state.activeTab+1]=JSON.parse(JSON.stringify(source));toast(`Exercise ${state.activeTab+1} copied to Exercise ${state.activeTab+2}`)}
   function activateSortables(){
     groupsEl.querySelectorAll('.player-list').forEach(list=>new Sortable(list,{group:'players',animation:170,delay:180,delayOnTouchOnly:true,touchStartThreshold:8,emptyInsertThreshold:40,swapThreshold:.65,invertSwap:true,fallbackOnBody:true,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:()=>{updateCounts();saveActiveExercise()}}));
     new Sortable(trashEl,{group:'players',sort:false,animation:150,onAdd:evt=>{evt.item.remove();trashEl.classList.remove('trash-active');updateCounts();saveActiveExercise();toast('Player deleted')},onMove:()=>{trashEl.classList.add('trash-active');return true},onEnd:()=>trashEl.classList.remove('trash-active')});
@@ -200,12 +233,13 @@
   }
 
   fileInput.addEventListener('change',e=>e.target.files[0]&&readFile(e.target.files[0]));
+  csvInput.addEventListener('change',e=>e.target.files[0]&&importProjectCsv(e.target.files[0]));
   uploadCard.addEventListener('dragover',e=>{e.preventDefault();uploadCard.classList.add('dragover')});
   uploadCard.addEventListener('dragleave',()=>uploadCard.classList.remove('dragover'));
   uploadCard.addEventListener('drop',e=>{e.preventDefault();uploadCard.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)readFile(f)});
   tabsEl.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)switchExercise(Number(b.dataset.tab))});
   $('#groupChooser').addEventListener('click',e=>{const b=e.target.closest('button[data-count]');if(b)changeGroupCount(Number(b.dataset.count))});
-  $('#addPlayerBtn').addEventListener('click',addManualPlayer);if($('#blankListBtn'))$('#blankListBtn').addEventListener('click',startBlank);
+  $('#addPlayerBtn').addEventListener('click',addManualPlayer);$('#copyNextBtn').addEventListener('click',copyToNextExercise);$('#exportCsvBtn').addEventListener('click',downloadProjectCsv);if($('#blankListBtn'))$('#blankListBtn').addEventListener('click',startBlank);
   colorMenu.addEventListener('click',e=>{const b=e.target.closest('[data-color]');if(!b||!colorTarget)return;colorTarget.dataset.color=b.dataset.color;saveActiveExercise();closeColorMenu();toast(`Player color set to ${b.dataset.color}`)});
   document.addEventListener('pointerdown',e=>{if(!colorMenu.classList.contains('hidden')&&!colorMenu.contains(e.target)&&!e.target.closest('.player'))closeColorMenu()});
   $('#exportBtn').addEventListener('click',exportImage);$('#downloadBtn').addEventListener('click',downloadImage);$('#resetBtn').addEventListener('click',startOver);
