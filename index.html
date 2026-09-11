@@ -27,7 +27,7 @@
     .color-menu{position:fixed;z-index:60;display:flex;flex-direction:column;gap:8px;padding:12px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 36px rgba(16,35,26,.22);}.color-menu.hidden{display:none}.color-choice{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #bcc9c1}.color-choice.red{background:#ef6b61}.color-choice.blue{background:#5595dd}.color-choice.green{background:#4aaa6a}.color-choice.yellow{background:#eac94e}.player.sortable-ghost{opacity:.25}.player.sortable-chosen{box-shadow:0 10px 24px rgba(11,107,58,.20);border-color:#69ad86}
     .empty-note{display:none;text-align:center;color:#7b8b82;font-size:.86rem;padding:22px 8px}.player-list:empty + .empty-note{display:block}
     .bottom-bar{position:fixed;z-index:20;bottom:0;left:0;right:0;padding:12px max(14px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.92);backdrop-filter:blur(13px);border-top:1px solid var(--line)}.bottom-inner{max-width:1072px;margin:auto;display:flex;gap:10px}.bottom-inner .primary{flex:1}
-    .saved-projects{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);text-align:left}.saved-projects h3{margin:0 0 10px;font-size:1rem}.saved-empty{color:var(--muted);font-size:.9rem}.saved-list{display:grid;gap:8px}.saved-item{display:flex;align-items:center;gap:8px;padding:10px;background:#f6faf7;border:1px solid var(--line);border-radius:13px}.saved-info{min-width:0;flex:1}.saved-name{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.saved-time{color:var(--muted);font-size:.78rem;margin-top:2px}.saved-open,.saved-delete{min-height:38px;border-radius:10px;padding:8px 11px;font-weight:800}.saved-open{background:var(--green);color:#fff}.saved-delete{background:#fff0ef;color:var(--danger);border:1px solid #ffd2ce}
+    .saved-projects{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);text-align:left}.saved-projects h3{margin:0 0 10px}.saved-item{display:flex;align-items:center;gap:8px;padding:9px;margin:7px 0;background:#f6faf7;border:1px solid var(--line);border-radius:12px}.saved-info{flex:1;min-width:0}.saved-name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.saved-time{font-size:.78rem;color:var(--muted)}.saved-open,.saved-delete{min-height:36px;padding:7px 10px;border-radius:9px;font-weight:800}.saved-open{background:var(--green);color:#fff}.saved-delete{background:#fff0ef;color:var(--danger)}.profile-status{margin-top:10px;color:var(--muted);font-size:.85rem}
     .toast{position:fixed;z-index:40;left:50%;bottom:92px;transform:translate(-50%,18px);opacity:0;background:#10231a;color:#fff;padding:11px 15px;border-radius:12px;font-weight:700;pointer-events:none;transition:.25s;max-width:calc(100% - 28px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
     @media(max-width:430px){.shell{padding-left:6px;padding-right:6px}.groups{gap:6px}.group-head{padding:8px 6px}.group-title{font-size:.78rem}.badge{min-width:22px;padding:2px 5px}.player-list{padding:4px;gap:4px}.player{padding:8px 18px 8px 5px;font-size:.68rem;overflow-wrap:anywhere}.player:after{right:5px}}
     @media(min-width:660px){.shell{padding:30px 22px 120px}.toolbar{flex-direction:row;justify-content:space-between;align-items:center}.groups{gap:14px}}
@@ -41,9 +41,8 @@
   <section id="uploadCard" class="card upload" aria-labelledby="uploadTitle">
     <strong id="uploadTitle">Upload attendance list</strong>
     <small>Reads the <b>For import</b> sheet from a Spond Event and includes only players whose Status is <b>Attending</b>.</small>
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><label class="btn primary" for="fileInput">Choose Excel file</label><label class="btn secondary" for="csvInput">Continue from CSV</label><button id="blankListBtn" class="btn secondary" type="button">Start with blank list</button></div><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" /><input id="csvInput" class="file-input" type="file" accept=".csv,text/csv" />
-    <div id="error" class="error" role="alert"></div>
-    <div id="savedProjects" class="saved-projects" aria-live="polite"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><label class="btn primary" for="fileInput">Choose Excel file</label><label class="btn secondary" for="csvInput">Continue from CSV</label><label class="btn secondary" for="profileInput">Upload player profiles</label><button id="blankListBtn" class="btn secondary" type="button">Start with blank list</button></div><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" /><input id="csvInput" class="file-input" type="file" accept=".csv,text/csv" /><input id="profileInput" class="file-input" type="file" accept=".xlsx,.xls" /><div id="profileStatus" class="profile-status">No player profiles loaded.</div>
+    <div id="error" class="error" role="alert"></div><div id="savedProjects" class="saved-projects"></div>
   </section>
 
   <section id="workspace" class="hidden">
@@ -67,77 +66,27 @@
   'use strict';
   const SHEET_NAME='For import', STATUS='kommer';
   const colors=['#dcfce7','#dbeafe','#fef3c7','#f3e8ff'];
-  const state={players:[],groupCount:3,sourceName:'',eventInfo:{title:'',dateTime:'',location:''},activeTab:0,exercises:[],projectId:'',projectName:'',isBlank:false};
+  const state={players:[],groupCount:3,sourceName:'',eventInfo:{title:'',dateTime:'',location:''},activeTab:0,exercises:[],playerLevels:{},projectId:'',projectName:''};
   const $=s=>document.querySelector(s);
-  const uploadCard=$('#uploadCard'), fileInput=$('#fileInput'), csvInput=$('#csvInput'), workspace=$('#workspace'), groupsEl=$('#groups'), errorEl=$('#error'), bottomBar=$('#bottomBar'), eventInfoEl=$('#eventInfo'), tabsEl=$('#exerciseTabs'), trashEl=$('#trash'), colorMenu=$('#colorMenu'), savedProjectsEl=$('#savedProjects');
+  const uploadCard=$('#uploadCard'), fileInput=$('#fileInput'), csvInput=$('#csvInput'), profileInput=$('#profileInput'), workspace=$('#workspace'), groupsEl=$('#groups'), errorEl=$('#error'), bottomBar=$('#bottomBar'), eventInfoEl=$('#eventInfo'), tabsEl=$('#exerciseTabs'), trashEl=$('#trash'), colorMenu=$('#colorMenu'), profileStatusEl=$('#profileStatus'), savedProjectsEl=$('#savedProjects');
 
   function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),3000)}
   function shortName(value){const parts=String(value??'').trim().split(/\s+/).filter(Boolean);if(!parts.length)return '';return [parts[0],...parts.slice(1).map(p=>Array.from(p)[0]?.toUpperCase()).filter(Boolean)].join(' ')}
   function setError(message=''){errorEl.textContent=message}
   function findHeader(rows){return rows.findIndex(row=>{const cells=row.map(x=>String(x??'').trim().toLowerCase());return cells.includes('status')&&cells.includes('navn')})}
-
-  const STORAGE_PREFIX='football-group-maker:';
-  function safeName(value){return String(value||'').trim().replace(/[^a-z0-9æøåäöü_-]+/gi,'_').replace(/^_+|_+$/g,'').slice(0,80)||'Project'}
-  function dateToken(value){
-    const s=String(value||'');
-    const iso=s.match(/\b(20\d{2})[-/.](\d{1,2})[-/.](\d{1,2})\b/);
-    if(iso)return `${iso[1]}-${String(iso[2]).padStart(2,'0')}-${String(iso[3]).padStart(2,'0')}`;
-    const dmy=s.match(/\b(\d{1,2})[./-](\d{1,2})[./-](20\d{2})\b/);
-    if(dmy)return `${dmy[3]}-${String(dmy[2]).padStart(2,'0')}-${String(dmy[1]).padStart(2,'0')}`;
-    return '';
+  const STORAGE_PREFIX='fgm-project:';
+  function normalizedName(v){return shortName(v).toLocaleLowerCase()}
+  function playerObject(p){if(typeof p==='string')return {name:p,manual:false,color:'',level:state.playerLevels[normalizedName(p)]??null};return {...p,level:p.level??state.playerLevels[normalizedName(p.name)]??null}}
+  function sortedPlayers(players){return players.map(playerObject).sort((a,b)=>{const al=Number.isFinite(Number(a.level))?Number(a.level):Infinity,bl=Number.isFinite(Number(b.level))?Number(b.level):Infinity;return al-bl||a.name.localeCompare(b.name)})}
+  function distributeByLevel(players,count){const groups=Array.from({length:count},()=>[]);sortedPlayers(players).forEach((p,i)=>groups[i%count].push(p));return groups}
+  async function readPlayerProfiles(file){
+    try{if(!window.XLSX)throw new Error('Excel reader unavailable.');const wb=XLSX.read(await file.arrayBuffer(),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});const levels={};rows.forEach(r=>{const name=String(r[0]??'').trim(),level=Number(r[1]);if(name&&Number.isFinite(level))levels[normalizedName(name)]=level});if(!Object.keys(levels).length)throw new Error('No valid names and levels found in columns A and B.');state.playerLevels=levels;profileStatusEl.textContent=`${Object.keys(levels).length} player profiles loaded.`;toast('Player profiles loaded')}catch(err){setError(err.message||'Could not read player profiles.');profileInput.value=''}
   }
-  function createProjectIdentity(sourceName,isBlank=false){
-    const token=dateToken(state.eventInfo.dateTime)||dateToken(sourceName);
-    const base=isBlank?'Blank Project':safeName(state.eventInfo.title||sourceName?.replace(/\.[^.]+$/,'')||'Football Project');
-    state.projectName=token&&!isBlank?`${base} ${token}`:base;
-    state.projectId=`${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
-    state.isBlank=isBlank;
-  }
-  function storageKey(){return STORAGE_PREFIX+state.projectId}
-  function autoSaveProject(){
-    if(!state.projectId||!state.exercises.length)return;
-    saveActiveExercise();
-    const payload={version:1,projectId:state.projectId,projectName:state.projectName,isBlank:state.isBlank,sourceName:state.sourceName,savedAt:new Date().toISOString(),activeTab:state.activeTab,eventInfo:state.eventInfo,exercises:state.exercises};
-    try{localStorage.setItem(storageKey(),JSON.stringify(payload));renderSavedProjects()}catch(err){console.error('Auto-save failed',err)}
-  }
-  function savedProjects(){
-    const items=[];
-    for(let i=0;i<localStorage.length;i++){
-      const key=localStorage.key(i);if(!key?.startsWith(STORAGE_PREFIX))continue;
-      try{const data=JSON.parse(localStorage.getItem(key));if(data?.exercises)items.push({key,data})}catch(_e){}
-    }
-    return items.sort((a,b)=>String(b.data.savedAt||'').localeCompare(String(a.data.savedAt||'')));
-  }
-  function formatSavedTime(value){if(!value)return '';try{return new Date(value).toLocaleString()}catch(_e){return value}}
-  function renderSavedProjects(){
-    const items=savedProjects();
-    savedProjectsEl.innerHTML='<h3>Saved projects</h3>';
-    if(!items.length){savedProjectsEl.insertAdjacentHTML('beforeend','<div class="saved-empty">No saved projects yet.</div>');return}
-    const list=document.createElement('div');list.className='saved-list';
-    items.forEach(({key,data})=>{
-      const row=document.createElement('div');row.className='saved-item';
-      const info=document.createElement('div');info.className='saved-info';
-      const name=document.createElement('div');name.className='saved-name';name.textContent=data.projectName||'Saved project';
-      const time=document.createElement('div');time.className='saved-time';time.textContent=`Last saved: ${formatSavedTime(data.savedAt)}`;
-      info.append(name,time);
-      const open=document.createElement('button');open.className='saved-open';open.type='button';open.textContent='Open';open.dataset.key=key;
-      const del=document.createElement('button');del.className='saved-delete';del.type='button';del.textContent='Delete';del.dataset.key=key;
-      row.append(info,open,del);list.append(row);
-    });
-    savedProjectsEl.append(list);
-  }
-  function openSavedProject(key){
-    try{
-      const data=JSON.parse(localStorage.getItem(key));if(!data?.exercises)throw new Error('Saved project could not be read.');
-      state.players=[];state.projectId=data.projectId||key.slice(STORAGE_PREFIX.length);state.projectName=data.projectName||'Saved project';state.isBlank=Boolean(data.isBlank);state.sourceName=data.sourceName||'';state.eventInfo=data.eventInfo||{title:'',dateTime:'',location:''};state.exercises=data.exercises;state.activeTab=Math.max(0,Math.min(2,Number(data.activeTab)||0));state.groupCount=state.exercises[state.activeTab]?.groupCount||3;
-      uploadCard.classList.add('hidden');workspace.classList.remove('hidden');bottomBar.classList.remove('hidden');renderEventInfo();switchExercise(state.activeTab,false);toast('Saved project opened');
-    }catch(err){setError(err?.message||'Saved project could not be opened.')}
-  }
-  function deleteSavedProject(key){
-    const data=JSON.parse(localStorage.getItem(key)||'null');
-    if(!confirm(`Delete saved project “${data?.projectName||'Saved project'}”?`))return;
-    localStorage.removeItem(key);renderSavedProjects();toast('Saved project deleted');
-  }
+  function newProjectIdentity(label){state.projectId=`${Date.now()}-${Math.random().toString(36).slice(2,7)}`;state.projectName=label||'Blank Project'}
+  function autoSaveProject(){if(!state.projectId||!state.exercises.length)return;saveActiveExercise();localStorage.setItem(STORAGE_PREFIX+state.projectId,JSON.stringify({projectId:state.projectId,projectName:state.projectName,savedAt:new Date().toISOString(),sourceName:state.sourceName,eventInfo:state.eventInfo,exercises:state.exercises,playerLevels:state.playerLevels,activeTab:state.activeTab}));renderSavedProjects()}
+  function renderSavedProjects(){const items=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key?.startsWith(STORAGE_PREFIX))continue;try{items.push({key,data:JSON.parse(localStorage.getItem(key))})}catch(_){}}items.sort((a,b)=>(b.data.savedAt||'').localeCompare(a.data.savedAt||''));savedProjectsEl.innerHTML='<h3>Saved projects</h3>';if(!items.length){savedProjectsEl.insertAdjacentHTML('beforeend','<div class="saved-time">No saved projects.</div>');return}items.forEach(({key,data})=>{const row=document.createElement('div');row.className='saved-item';row.innerHTML=`<div class="saved-info"><div class="saved-name"></div><div class="saved-time"></div></div><button class="saved-open">Open</button><button class="saved-delete">Delete</button>`;row.querySelector('.saved-name').textContent=data.projectName||'Project';row.querySelector('.saved-time').textContent=new Date(data.savedAt).toLocaleString();row.querySelector('.saved-open').onclick=()=>openSaved(key);row.querySelector('.saved-delete').onclick=()=>deleteSaved(key);savedProjectsEl.append(row)})}
+  function openSaved(key){const d=JSON.parse(localStorage.getItem(key));state.projectId=d.projectId;state.projectName=d.projectName;state.sourceName=d.sourceName||'';state.eventInfo=d.eventInfo||{title:'',dateTime:'',location:''};state.exercises=d.exercises;state.playerLevels=d.playerLevels||{};state.activeTab=Number(d.activeTab)||0;state.groupCount=state.exercises[state.activeTab].groupCount;profileStatusEl.textContent=Object.keys(state.playerLevels).length?`${Object.keys(state.playerLevels).length} player profiles loaded.`:'No player profiles loaded.';uploadCard.classList.add('hidden');workspace.classList.remove('hidden');bottomBar.classList.remove('hidden');renderEventInfo();switchExercise(state.activeTab,false)}
+  function deleteSaved(key){if(!confirm('Delete this saved project?'))return;localStorage.removeItem(key);renderSavedProjects()}
 
   async function readFile(file){
     setError('');
@@ -157,7 +106,7 @@
         .filter(r=>String(r[statusCol]??'').trim().toLowerCase()===STATUS)
         .map(r=>shortName(r[nameCol])).filter(Boolean);
       if(!players.length) throw new Error('No players with Status = Kommer were found.');
-      state.players=players;state.sourceName=file.name;state.groupCount=3;state.eventInfo=eventInfo;state.activeTab=0;state.exercises=Array.from({length:3},()=>({groupCount:3,groups:distributePlayers(players,3)}));createProjectIdentity(file.name,false);
+      state.players=players;state.sourceName=file.name;state.groupCount=3;state.eventInfo=eventInfo;state.activeTab=0;state.exercises=Array.from({length:3},()=>({groupCount:3,groups:distributeByLevel(players,3)}));newProjectIdentity(`${state.eventInfo.title||file.name}${state.eventInfo.dateTime?' '+state.eventInfo.dateTime:''}`);
       showWorkspace();autoSaveProject();
     }catch(err){setError(err?.message||'The file could not be read.');fileInput.value=''}
   }
@@ -193,32 +142,32 @@
       const project=rows.find(r=>r[0]==='PROJECT')||[];const exercises=Array.from({length:3},()=>({groupCount:3,groups:[[],[],[]]}));
       rows.filter(r=>r[0]==='EXERCISE').forEach(r=>{const ei=Number(r[1])-1,gc=Math.max(2,Math.min(4,Number(r[7])||3));if(ei>=0&&ei<3)exercises[ei]={groupCount:gc,groups:Array.from({length:gc},()=>[])} });
       rows.filter(r=>r[0]==='PLAYER').forEach(r=>{const ei=Number(r[1])-1,gi=Number(r[2])-1;if(ei<0||ei>=3)return;const ex=exercises[ei];if(gi<0||gi>=ex.groups.length)return;ex.groups[gi].push({name:r[4]||'',manual:String(r[5]).toLowerCase()==='true',color:r[6]||''})});
-      state.players=[];state.sourceName=file.name;state.eventInfo={title:project[8]||'',dateTime:project[9]||'',location:project[10]||''};state.activeTab=0;state.exercises=exercises;state.groupCount=exercises[0].groupCount;createProjectIdentity(file.name,false);showWorkspace();autoSaveProject();toast('Project CSV loaded');
+      state.players=[];state.sourceName=file.name;state.eventInfo={title:project[8]||'',dateTime:project[9]||'',location:project[10]||''};state.activeTab=0;state.exercises=exercises;state.groupCount=exercises[0].groupCount;newProjectIdentity(state.eventInfo.title||file.name);showWorkspace();autoSaveProject();toast('Project CSV loaded');
     }catch(err){setError(err?.message||'Could not import CSV.');csvInput.value=''}
   }
   function startBlank(){
     state.players=[];state.sourceName='';state.groupCount=3;state.eventInfo={title:'',dateTime:'',location:''};state.activeTab=0;
-    state.exercises=Array.from({length:3},()=>({groupCount:3,groups:[[],[],[]]}));createProjectIdentity('',true);
+    state.exercises=Array.from({length:3},()=>({groupCount:3,groups:[[],[],[]]}));newProjectIdentity('Blank Project');
     showWorkspace();autoSaveProject();
   }
 
   function renderEventInfo(){const info=state.eventInfo;eventInfoEl.innerHTML='';if(info.title){const el=document.createElement('div');el.className='event-title';el.textContent=info.title;eventInfoEl.append(el)}if(info.dateTime){const el=document.createElement('div');el.className='event-meta';el.textContent=info.dateTime;eventInfoEl.append(el)}if(info.location){const el=document.createElement('div');el.className='event-meta';el.textContent=info.location;eventInfoEl.append(el)}}
   function distributePlayers(players,count){const groups=Array.from({length:count},()=>[]);players.forEach((name,i)=>groups[i%count].push(name));return groups}
-  function captureGroups(){return [...groupsEl.querySelectorAll('.player-list')].map(list=>[...list.querySelectorAll('.player')].map(p=>({name:p.dataset.name,manual:p.dataset.manual==='true',color:p.dataset.color||''})))}
+  function captureGroups(){return [...groupsEl.querySelectorAll('.player-list')].map(list=>[...list.querySelectorAll('.player')].map(p=>({name:p.dataset.name,manual:p.dataset.manual==='true',color:p.dataset.color||'',level:p.dataset.level===''?null:Number(p.dataset.level)})))}
   function saveActiveExercise(){if(state.exercises[state.activeTab]){state.exercises[state.activeTab].groupCount=state.groupCount;state.exercises[state.activeTab].groups=captureGroups()}}
   function showWorkspace(){uploadCard.classList.add('hidden');workspace.classList.remove('hidden');bottomBar.classList.remove('hidden');renderEventInfo();switchExercise(0,false)}
-  function switchExercise(index,save=true){if(save&&workspace&&!workspace.classList.contains('hidden')){saveActiveExercise();autoSaveProject()}state.activeTab=index;const ex=state.exercises[index];state.groupCount=ex.groupCount;tabsEl.querySelectorAll('.tab').forEach(b=>{const active=Number(b.dataset.tab)===index;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});document.querySelectorAll('#groupChooser button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===state.groupCount));renderGroups(ex.groups)}
+  function switchExercise(index,save=true){if(save&&workspace&&!workspace.classList.contains('hidden'))saveActiveExercise();state.activeTab=index;const ex=state.exercises[index];state.groupCount=ex.groupCount;tabsEl.querySelectorAll('.tab').forEach(b=>{const active=Number(b.dataset.tab)===index;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});document.querySelectorAll('#groupChooser button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===state.groupCount));renderGroups(ex.groups)}
   function renderGroups(groupData){
     groupsEl.dataset.count=String(state.groupCount);groupsEl.innerHTML='';
     for(let i=0;i<state.groupCount;i++){
       const section=document.createElement('section');section.className='group';section.style.setProperty('--group-bg',colors[i]);
       section.innerHTML=`<div class="group-head"><span class="group-title">Group ${i+1}</span><span class="badge">0</span></div><div class="player-list" data-group="${i}"></div><div class="empty-note">Drop players here</div>`;
       groupsEl.append(section);
-      (groupData[i]||[]).forEach(player=>addPlayer(typeof player==='string'?player:player.name,section.querySelector('.player-list'),typeof player==='object'&&player.manual,typeof player==='object'?(player.color||''):''));
+      (groupData[i]||[]).forEach(player=>addPlayer(typeof player==='string'?player:player.name,section.querySelector('.player-list'),typeof player==='object'&&player.manual,typeof player==='object'?(player.color||''):'',typeof player==='object'?(player.level??null):(state.playerLevels[normalizedName(player)]??null)));
     }
     activateSortables();updateCounts();
   }
-  function addPlayer(name,list,manual=false,color=''){const el=document.createElement('div');el.className='player'+(manual?' manual-player':'');el.textContent=name;el.dataset.name=name;el.dataset.manual=String(manual);el.dataset.color=color;bindColorHold(el);list.append(el)}
+  function addPlayer(name,list,manual=false,color='',level=null){const el=document.createElement('div');el.className='player'+(manual?' manual-player':'');el.textContent=name;el.dataset.name=name;el.dataset.manual=String(manual);el.dataset.color=color;el.dataset.level=level??state.playerLevels[normalizedName(name)]??'';bindColorHold(el);list.append(el)}
   let colorTarget=null,holdTimer=null,holdStart=null;
   function closeColorMenu(){colorMenu.classList.add('hidden');colorTarget=null}
   function openColorMenu(player,x,y){
@@ -255,7 +204,7 @@
   }
   function updateCounts(){let total=0;groupsEl.querySelectorAll('.group').forEach(g=>{const n=g.querySelectorAll('.player').length;g.querySelector('.badge').textContent=n;total+=n});$('#summary').textContent=`${total} players in Exercise ${state.activeTab+1} • drag to rearrange`}
   function currentPlayers(){return [...groupsEl.querySelectorAll('.player')].map(x=>({name:x.dataset.name,manual:x.dataset.manual==='true',color:x.dataset.color||''}))}
-  function changeGroupCount(count){const players=currentPlayers();state.groupCount=count;state.exercises[state.activeTab]={groupCount:count,groups:distributePlayers(players,count)};document.querySelectorAll('#groupChooser button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===count));renderGroups(state.exercises[state.activeTab].groups);autoSaveProject()}
+  function changeGroupCount(count){if(count===state.groupCount)return;if(!confirm(`Change number of groups from ${state.groupCount} to ${count}? Player assignments will be recalculated by player level.`))return;const players=currentPlayers();state.groupCount=count;state.exercises[state.activeTab]={groupCount:count,groups:distributeByLevel(players,count)};document.querySelectorAll('#groupChooser button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===count));renderGroups(state.exercises[state.activeTab].groups);autoSaveProject()}
   function startOver(){if(!confirm('Start over and clear the current groups?'))return;state.players=[];state.sourceName='';state.eventInfo={title:'',dateTime:'',location:''};state.activeTab=0;state.exercises=[];eventInfoEl.innerHTML='';fileInput.value='';groupsEl.innerHTML='';workspace.classList.add('hidden');bottomBar.classList.add('hidden');uploadCard.classList.remove('hidden');setError('');window.location.reload();window.scrollTo({top:0,behavior:'smooth'})}
 
   function roundRect(ctx,x,y,w,h,r,fill){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill()}
@@ -299,6 +248,7 @@
 
   fileInput.addEventListener('change',e=>e.target.files[0]&&readFile(e.target.files[0]));
   csvInput.addEventListener('change',e=>e.target.files[0]&&importProjectCsv(e.target.files[0]));
+  profileInput.addEventListener('change',e=>e.target.files[0]&&readPlayerProfiles(e.target.files[0]));
   uploadCard.addEventListener('dragover',e=>{e.preventDefault();uploadCard.classList.add('dragover')});
   uploadCard.addEventListener('dragleave',()=>uploadCard.classList.remove('dragover'));
   uploadCard.addEventListener('drop',e=>{e.preventDefault();uploadCard.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)readFile(f)});
@@ -307,9 +257,8 @@
   $('#addPlayerBtn').addEventListener('click',addManualPlayer);$('#copyNextBtn').addEventListener('click',copyToNextExercise);$('#exportCsvBtn').addEventListener('click',downloadProjectCsv);if($('#blankListBtn'))$('#blankListBtn').addEventListener('click',startBlank);
   colorMenu.addEventListener('click',e=>{const b=e.target.closest('[data-color]');if(!b||!colorTarget)return;colorTarget.dataset.color=b.dataset.color;saveActiveExercise();autoSaveProject();closeColorMenu();toast(`Player color set to ${b.dataset.color}`)});
   document.addEventListener('pointerdown',e=>{if(!colorMenu.classList.contains('hidden')&&!colorMenu.contains(e.target)&&!e.target.closest('.player'))closeColorMenu()});
-  savedProjectsEl.addEventListener('click',e=>{const open=e.target.closest('.saved-open'),del=e.target.closest('.saved-delete');if(open)openSavedProject(open.dataset.key);if(del)deleteSavedProject(del.dataset.key)});
-  $('#exportBtn').addEventListener('click',exportImage);$('#downloadBtn').addEventListener('click',downloadImage);$('#resetBtn').addEventListener('click',startOver);
   renderSavedProjects();
+  $('#exportBtn').addEventListener('click',exportImage);$('#downloadBtn').addEventListener('click',downloadImage);$('#resetBtn').addEventListener('click',startOver);
 })();
 </script>
 </body>
