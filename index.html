@@ -78,7 +78,16 @@
   function normalizedName(v){return shortName(v).toLocaleLowerCase()}
   function playerObject(p){if(typeof p==='string')return {name:p,manual:false,color:'',level:state.playerLevels[normalizedName(p)]??null};return {...p,level:p.level??state.playerLevels[normalizedName(p.name)]??null}}
   function sortedPlayers(players){return players.map(playerObject).sort((a,b)=>{const al=Number.isFinite(Number(a.level))?Number(a.level):Infinity,bl=Number.isFinite(Number(b.level))?Number(b.level):Infinity;return al-bl||a.name.localeCompare(b.name)})}
-  function distributeByLevel(players,count){const groups=Array.from({length:count},()=>[]);sortedPlayers(players).forEach((p,i)=>groups[i%count].push(p));return groups}
+  function distributeByLevel(players,count){
+    const sorted=sortedPlayers(players),groups=Array.from({length:count},()=>[]),base=Math.floor(sorted.length/count),extra=sorted.length%count;
+    let cursor=0;
+    for(let groupIndex=0;groupIndex<count;groupIndex++){
+      const size=base+(groupIndex<extra?1:0);
+      groups[groupIndex]=sorted.slice(cursor,cursor+size);
+      cursor+=size;
+    }
+    return groups;
+  }
   async function readPlayerProfiles(file){
     try{if(!window.XLSX)throw new Error('Excel reader unavailable.');const wb=XLSX.read(await file.arrayBuffer(),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});const levels={};rows.forEach(r=>{const name=String(r[0]??'').trim(),level=Number(r[1]);if(name&&Number.isFinite(level))levels[normalizedName(name)]=level});if(!Object.keys(levels).length)throw new Error('No valid names and levels found in columns A and B.');state.playerLevels=levels;profileStatusEl.textContent=`${Object.keys(levels).length} player profiles loaded.`;toast('Player profiles loaded')}catch(err){setError(err.message||'Could not read player profiles.');profileInput.value=''}
   }
