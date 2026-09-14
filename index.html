@@ -16,7 +16,7 @@
     .card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
     .upload{border:2px dashed #8eb9a1;text-align:center;padding:28px 16px;transition:.2s;background:#fbfefc}.upload.dragover{border-color:var(--green);background:var(--lime);transform:translateY(-2px)}
     .upload strong{display:block;font-size:1.08rem;margin-bottom:6px}.upload small{display:block;color:var(--muted);margin:6px auto 16px;max-width:420px}.file-input{position:absolute;clip:rect(0,0,0,0)}
-    .btn{min-height:46px;border-radius:13px;padding:11px 16px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;gap:8px}.primary{background:var(--green);color:#fff}.primary:hover{background:#075a30}.secondary{background:#edf3ef;color:var(--ink)}.danger{background:#fff0ef;color:var(--danger);border:1px solid #ffd2ce}
+    .btn{min-height:46px;border-radius:13px;padding:11px 16px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;gap:8px}.primary{background:var(--green);color:#fff}.primary:hover{background:#075a30}.attendance-upload-btn{position:relative;overflow:hidden;min-width:230px;min-height:54px;font-size:1.02rem;letter-spacing:.01em;background:linear-gradient(135deg,#08733d,#18a45d)!important;border:1px solid rgba(255,255,255,.72);box-shadow:0 10px 24px rgba(11,107,58,.30),0 0 0 3px rgba(21,148,85,.10),inset 0 1px 0 rgba(255,255,255,.38);transition:transform .18s,box-shadow .18s}.attendance-upload-btn:before{content:"↑";font-size:1.25rem;font-weight:900}.attendance-upload-btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(11,107,58,.38),0 0 0 4px rgba(21,148,85,.14),inset 0 1px 0 rgba(255,255,255,.45)}.secondary{background:#edf3ef;color:var(--ink)}.danger{background:#fff0ef;color:var(--danger);border:1px solid #ffd2ce}
     .hidden{display:none!important}.error{margin-top:12px;color:var(--danger);font-weight:650}.toolbar{display:flex;flex-direction:column;gap:12px;margin:14px 0}.toolbar-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     .exercise-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 10px}.tabs{display:flex;gap:6px;min-width:0}.tab{min-height:42px;padding:9px 13px;border-radius:12px;background:#e8f0eb;color:#44564b;font-weight:800;white-space:nowrap}.tab.active{background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(11,107,58,.2)}
     .trash{width:50px;height:50px;border-radius:15px;background:#fff0ef;color:var(--danger);border:2px dashed #e2928b;display:grid;place-items:center;font-size:25px;flex:0 0 auto;transition:.18s}.trash.trash-active{background:#ffd9d5;border-color:var(--danger);transform:scale(1.07)}.trash .trash-label{position:absolute;clip:rect(0,0,0,0)}
@@ -40,9 +40,9 @@
   <header><div class="logo-wrap"><img src="https://oygardenil.no/images/logo.png" alt="Øygarden IL logo"></div><div><h1>Football Group Maker</h1><p class="subtitle">Upload attendance, sort players, share the groups.</p></div></header>
 
   <section id="uploadCard" class="card upload" aria-labelledby="uploadTitle">
-    <strong id="uploadTitle">Upload attendance list</strong>
+    <strong id="uploadTitle">Organize your Group Activity</strong>
     <small>Reads the <b>For import</b> sheet from a Spond Event and includes only players whose Status is <b>Attending</b>.</small>
-    <div class="upload-actions"><div class="upload-main-actions"><div class="main-action-stack"><label class="btn primary" for="fileInput">Choose Excel file</label><label id="createProfilesBtn" class="btn secondary create-profile-text-btn" for="createProfilesInput" title="Upload Group Members" aria-label="Upload Group Members">Upload Group Members</label><div class="profile-status-row"><div id="profileBtn" class="profile-count-text" role="status" aria-live="polite">0 profiles loaded</div><label id="reloadProfilesBtn" class="btn secondary icon-btn" for="createProfilesInput" title="Upload a new player list and replace all profiles" aria-label="Upload a new player list and replace all profiles">🔄</label></div></div></div><div class="upload-secondary-actions"><label class="btn secondary" for="csvInput">Continue from CSV</label><button id="blankListBtn" class="btn secondary" type="button">Start with blank list</button></div></div><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" /><input id="csvInput" class="file-input" type="file" accept=".csv,text/csv" /><input id="createProfilesInput" class="file-input" type="file" accept=".xlsx,.xls" />
+    <div class="upload-actions"><div class="upload-main-actions"><div class="main-action-stack"><label class="btn primary attendance-upload-btn" for="fileInput">Upload attendance list</label><label id="createProfilesBtn" class="btn secondary create-profile-text-btn" for="createProfilesInput" title="Upload Group Members" aria-label="Upload Group Members">Upload Group Members</label><div class="profile-status-row"><div id="profileBtn" class="profile-count-text" role="status" aria-live="polite">0 profiles loaded</div><label id="reloadProfilesBtn" class="btn secondary icon-btn" for="createProfilesInput" title="Upload a new player list and replace all profiles" aria-label="Upload a new player list and replace all profiles">🔄</label></div></div></div><div class="upload-secondary-actions"><label class="btn secondary" for="csvInput">Continue from CSV</label><button id="blankListBtn" class="btn secondary" type="button">Start with blank list</button></div></div><input id="fileInput" class="file-input" type="file" accept=".xlsx,.xls" /><input id="csvInput" class="file-input" type="file" accept=".csv,text/csv" /><input id="createProfilesInput" class="file-input" type="file" accept=".xlsx,.xls" />
     <div id="error" class="error" role="alert"></div><div id="savedProjects" class="saved-projects"></div>
   </section>
 
@@ -250,43 +250,10 @@
   }
   function updateCounts(){let total=0;groupsEl.querySelectorAll('.group').forEach(g=>{const n=g.querySelectorAll('.player').length;g.querySelector('.badge').textContent=n;total+=n});$('#summary').textContent=`${total} players in Exercise ${String.fromCharCode(65+state.activeTab)} • drag to rearrange`}
   function currentPlayers(){return [...groupsEl.querySelectorAll('.player')].map(x=>({name:x.dataset.name,manual:x.dataset.manual==='true',color:x.dataset.color||'',level:x.dataset.level===''?null:Number(x.dataset.level)}))}
-  function shuffleArray(items){
-    const shuffled=[...items];
-    for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}
-    return shuffled;
-  }
-  function diceGroups(players,count){
-    const ranked=players.map(playerObject).sort((a,b)=>{const al=Number.isFinite(Number(a.level))?Number(a.level):Infinity,bl=Number.isFinite(Number(b.level))?Number(b.level):Infinity;return al-bl||a.name.localeCompare(b.name)});
-    const groups=Array.from({length:count},()=>[]);
-    for(let start=0;start<ranked.length;start+=count){
-      const tier=ranked.slice(start,start+count),destinations=shuffleArray(Array.from({length:count},(_,i)=>i));
-      tier.forEach((player,i)=>groups[destinations[i]].push(player));
-    }
-    return groups;
-  }
+  function shuffleArray(items){const shuffled=[...items];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}return shuffled}
+  function diceGroups(players,count){const ranked=players.map(playerObject).sort((a,b)=>{const al=Number.isFinite(Number(a.level))?Number(a.level):Infinity,bl=Number.isFinite(Number(b.level))?Number(b.level):Infinity;return al-bl||a.name.localeCompare(b.name)}),groups=Array.from({length:count},()=>[]);for(let start=0;start<ranked.length;start+=count){const tier=ranked.slice(start,start+count),destinations=shuffleArray(Array.from({length:count},(_,i)=>i));tier.forEach((player,i)=>groups[destinations[i]].push(player))}return groups}
   function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
-  async function rollTheDice(){
-    const button=$('#rollDiceBtn');if(button.disabled)return;
-    const players=currentPlayers();if(players.length<2){toast('Add at least two players before rolling the dice');return}
-    button.disabled=true;groupsEl.classList.add('dice-rolling');resetSnapshotState();saveActiveExercise();
-    try{
-      const targetGroups=diceGroups(players,state.groupCount);
-      const targetByName=new Map();targetGroups.forEach((group,groupIndex)=>group.forEach((player,position)=>targetByName.set(normalizedName(player.name),{groupIndex,position})));
-      const lists=[...groupsEl.querySelectorAll('.player-list')];
-      const cards=[...groupsEl.querySelectorAll('.player')];
-      for(const card of shuffleArray(cards)){
-        const destination=targetByName.get(normalizedName(card.dataset.name));if(!destination)continue;
-        const targetList=lists[destination.groupIndex],before=card.getBoundingClientRect();
-        const reference=targetList.children[destination.position]||null;targetList.insertBefore(card,reference);
-        const after=card.getBoundingClientRect(),dx=before.left-after.left,dy=before.top-after.top;
-        card.classList.add('dice-moving');card.style.transition='none';card.style.transform=`translate(${dx}px,${dy}px) rotate(${Math.random()>.5?6:-6}deg)`;card.style.opacity='.72';
-        card.getBoundingClientRect();card.style.transition='transform .3s cubic-bezier(.2,.8,.2,1),opacity .18s,box-shadow .18s';card.style.transform='translate(0,0) rotate(0deg)';card.style.opacity='1';
-        updateCounts();await wait(95);
-      }
-      await wait(320);cards.forEach(card=>{card.classList.remove('dice-moving');card.style.removeProperty('transition');card.style.removeProperty('transform');card.style.removeProperty('opacity')});
-      state.exercises[state.activeTab]={groupCount:state.groupCount,groups:captureGroups()};autoSaveProject();toast('Players shuffled by level tiers');
-    }finally{groupsEl.classList.remove('dice-rolling');button.disabled=false}
-  }
+  async function rollTheDice(){const button=$('#rollDiceBtn');if(button.disabled)return;const players=currentPlayers();if(players.length<2){toast('Add at least two players before rolling the dice');return}button.disabled=true;groupsEl.classList.add('dice-rolling');resetSnapshotState();saveActiveExercise();try{const targetGroups=diceGroups(players,state.groupCount),targetByName=new Map();targetGroups.forEach((group,groupIndex)=>group.forEach((player,position)=>targetByName.set(normalizedName(player.name),{groupIndex,position})));const lists=[...groupsEl.querySelectorAll('.player-list')],cards=[...groupsEl.querySelectorAll('.player')];for(const card of shuffleArray(cards)){const destination=targetByName.get(normalizedName(card.dataset.name));if(!destination)continue;const targetList=lists[destination.groupIndex],before=card.getBoundingClientRect(),reference=targetList.children[destination.position]||null;targetList.insertBefore(card,reference);const after=card.getBoundingClientRect(),dx=before.left-after.left,dy=before.top-after.top;card.classList.add('dice-moving');card.style.transition='none';card.style.transform=`translate(${dx}px,${dy}px) rotate(${Math.random()>.5?6:-6}deg)`;card.style.opacity='.72';card.getBoundingClientRect();card.style.transition='transform .3s cubic-bezier(.2,.8,.2,1),opacity .18s,box-shadow .18s';card.style.transform='translate(0,0) rotate(0deg)';card.style.opacity='1';updateCounts();await wait(95)}await wait(320);cards.forEach(card=>{card.classList.remove('dice-moving');card.style.removeProperty('transition');card.style.removeProperty('transform');card.style.removeProperty('opacity')});state.exercises[state.activeTab]={groupCount:state.groupCount,groups:captureGroups()};autoSaveProject();toast('Players shuffled by level tiers')}finally{groupsEl.classList.remove('dice-rolling');button.disabled=false}}
   function changeGroupCount(count){if(count===state.groupCount)return;if(!confirm(`Change number of groups from ${state.groupCount} to ${count}? Player assignments will be recalculated by player level.`))return;const players=currentPlayers();state.groupCount=count;state.exercises[state.activeTab]={groupCount:count,groups:distributeByLevel(players,count)};document.querySelectorAll('#groupChooser button').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===count));renderGroups(state.exercises[state.activeTab].groups);resetSnapshotState();autoSaveProject()}
   function startOver(){if(!confirm('Do you want to start planning a new workout?'))return;state.players=[];state.sourceName='';state.eventInfo={title:'',dateTime:'',location:''};state.activeTab=0;state.exercises=[];eventInfoEl.innerHTML='';fileInput.value='';groupsEl.innerHTML='';workspace.classList.add('hidden');bottomBar.classList.add('hidden');uploadCard.classList.remove('hidden');setError('');window.location.reload();window.scrollTo({top:0,behavior:'smooth'})}
 
