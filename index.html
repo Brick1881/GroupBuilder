@@ -32,7 +32,7 @@
     .toast{position:fixed;z-index:40;left:50%;bottom:92px;transform:translate(-50%,18px);opacity:0;background:#10231a;color:#fff;padding:11px 15px;border-radius:12px;font-weight:700;pointer-events:none;transition:.25s;max-width:calc(100% - 28px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
     @media(max-width:430px){.shell{padding-left:6px;padding-right:6px}.groups{gap:6px}.group-head{padding:8px 6px}.group-title{font-size:.78rem}.badge{min-width:22px;padding:2px 5px}.player-list{padding:4px;gap:4px}.player{padding:8px 18px 8px 5px;font-size:.68rem;overflow-wrap:anywhere}.player:after{right:5px}}
     @media(min-width:660px){.shell{padding:30px 22px 120px}.toolbar{flex-direction:row;justify-content:space-between;align-items:center}.groups{gap:14px}}
-    @media(min-width:960px){.groups[data-count="3"]{grid-template-columns:repeat(3,1fr)}.groups[data-count="4"]{grid-template-columns:repeat(4,1fr)}}
+    @media(min-width:960px){.groups[data-count="3"]{grid-template-columns:repeat(3,1fr)}.groups[data-count="4"]{grid-template-columns:repeat(4,1fr)}.groups[data-count="5"]{grid-template-columns:repeat(5,1fr)}.groups[data-count="6"]{grid-template-columns:repeat(6,1fr)}}
   </style>
 </head>
 <body>
@@ -52,7 +52,7 @@
     <div id="summary" class="summary"></div>
     <div id="groups" class="groups" data-count="3"></div>
 	<div class="toolbar">
-      <div><div class="count-control"><b>Number of groups</b><div class="group-control-stack"><div id="groupChooser" class="segmented" aria-label="Number of groups"><button data-count="2">2</button><button data-count="3" class="active">3</button><button data-count="4">4</button></div><button id="rollDiceBtn" class="roll-dice-btn" type="button" title="Roll the dice" aria-label="Roll the dice"><span aria-hidden="true">🎲</span><span>Roll the dice</span></button></div><div class="player-actions"><button id="addPlayerBtn" class="add-player-btn" type="button" title="Add player" aria-label="Add player">👤➕</button><button id="copyNextBtn" class="copy-next-btn" type="button" title="Copy current groups to next exercise" aria-label="Copy current groups to next exercise">📋➡️</button><button id="exportCsvBtn" class="csv-action-btn" type="button" title="Download project CSV" aria-label="Download project CSV">📄⬇️</button></div></div></div>
+      <div><div class="count-control"><b>Number of groups</b><div class="group-control-stack"><div id="groupChooser" class="segmented" aria-label="Number of groups"><button data-count="2">2</button><button data-count="3" class="active">3</button><button data-count="4">4</button><button data-count="5">5</button><button data-count="6">6</button></div><button id="rollDiceBtn" class="roll-dice-btn" type="button" title="Roll the dice" aria-label="Roll the dice"><span aria-hidden="true">🎲</span><span>Roll the dice</span></button></div><div class="player-actions"><button id="addPlayerBtn" class="add-player-btn" type="button" title="Add player" aria-label="Add player">👤➕</button><button id="copyNextBtn" class="copy-next-btn" type="button" title="Copy current groups to next exercise" aria-label="Copy current groups to next exercise">📋➡️</button><button id="exportCsvBtn" class="csv-action-btn" type="button" title="Download project CSV" aria-label="Download project CSV">📄⬇️</button></div></div></div>
       
     </div>
     <div id="eventInfo" class="event-info" aria-live="polite" style="margin-top:16px"></div>
@@ -68,7 +68,7 @@
 (() => {
   'use strict';
   const SHEET_NAME='For import', STATUS='kommer';
-  const colors=['#dcfce7','#dbeafe','#fef3c7','#f3e8ff'];
+  const colors=['#dcfce7','#dbeafe','#fef3c7','#f3e8ff','#ffe4e6','#cffafe'];
   const state={players:[],groupCount:3,sourceName:'',eventInfo:{title:'',dateTime:'',location:''},activeTab:0,exercises:[],remainingPlayers:[],playerLevels:{},projectId:'',projectName:'',builderNames:[],profileDisplayNames:{},profileColors:{}};
   const $=s=>document.querySelector(s);
   const uploadCard=$('#uploadCard'), fileInput=$('#fileInput'), csvInput=$('#csvInput'), createProfilesInput=$('#createProfilesInput'), workspace=$('#workspace'), groupsEl=$('#groups'), errorEl=$('#error'), bottomBar=$('#bottomBar'), eventInfoEl=$('#eventInfo'), tabsEl=$('#exerciseTabs'), trashEl=$('#trash'), colorMenu=$('#colorMenu'), profileBtnEl=$('#profileBtn'), createProfilesBtnEl=$('#createProfilesBtn'), savedProjectsEl=$('#savedProjects'), profileBuilder=$('#profileBuilder'), profileBuilderList=$('#profileBuilderList'), profileTrash=$('#profileTrash'), uploadProfilesXlsxInput=$('#uploadProfilesXlsxInput'), playerPickerBackdrop=$('#playerPickerBackdrop'), remainingPlayersList=$('#remainingPlayersList'), manualPlayerName=$('#manualPlayerName');
@@ -180,7 +180,7 @@
       const expected=['RecordType','Exercise','Group','Position','Player','Manual','Color','GroupCount','EventTitle','EventDateTime','EventLocation'];
       if(!expected.every((h,i)=>rows[0][i]===h))throw new Error('This CSV is not a Football Group Maker project file.');
       const project=rows.find(r=>r[0]==='PROJECT')||[];const exercises=Array.from({length:3},()=>({groupCount:3,groups:[[],[],[]]}));
-      rows.filter(r=>r[0]==='EXERCISE').forEach(r=>{const ei=Number(r[1])-1,gc=Math.max(2,Math.min(4,Number(r[7])||3));if(ei>=0&&ei<3)exercises[ei]={groupCount:gc,groups:Array.from({length:gc},()=>[])} });
+      rows.filter(r=>r[0]==='EXERCISE').forEach(r=>{const ei=Number(r[1])-1,gc=Math.max(2,Math.min(6,Number(r[7])||3));if(ei>=0&&ei<3)exercises[ei]={groupCount:gc,groups:Array.from({length:gc},()=>[])} });
       rows.filter(r=>r[0]==='PLAYER').forEach(r=>{const ei=Number(r[1])-1,gi=Number(r[2])-1;if(ei<0||ei>=3)return;const ex=exercises[ei];if(gi<0||gi>=ex.groups.length)return;ex.groups[gi].push({name:r[4]||'',manual:String(r[5]).toLowerCase()==='true',color:r[6]||''})});
       state.players=[];state.remainingPlayers=[];state.sourceName=file.name;state.eventInfo={title:project[8]||'',dateTime:project[9]||'',location:project[10]||''};state.activeTab=0;state.exercises=exercises;state.groupCount=exercises[0].groupCount;newProject(state.eventInfo.title||file.name);showWorkspace();autoSaveProject();toast('Project CSV loaded');
     }catch(err){setError(err?.message||'Could not import CSV.');csvInput.value=''}
