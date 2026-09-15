@@ -259,11 +259,15 @@
   function deleteExercise(index){
     const visible=state.visibleExerciseCount||1;if(visible<=1){toast('At least one exercise must remain');return}
     saveActiveExercise();
-    for(let i=index;i<visible-1;i++)state.exercises[i]=JSON.parse(JSON.stringify(state.exercises[i+1]));
-    state.exercises[visible-1]={groupCount:3,groups:[[],[],[]]};
+    const deletedLabel=String.fromCharCode(65+index);
+    state.exercises.splice(index,1);
+    state.exercises.push({groupCount:3,groups:[[],[],[]]});
     state.visibleExerciseCount=visible-1;
     const nextActive=Math.min(index,state.visibleExerciseCount-1);
-    state.activeTab=nextActive;autoSaveProject();switchExercise(nextActive,false);toast(`Exercise ${String.fromCharCode(65+index)} deleted`)
+    state.activeTab=nextActive;
+    switchExercise(nextActive,false);
+    autoSaveProject();
+    toast(`Exercise ${deletedLabel} deleted`)
   }
   function activateExerciseDrag(){
     tabsEl.querySelectorAll('.tab').forEach(tab=>{
@@ -272,7 +276,7 @@
     });
     trashEl.addEventListener('dragover',e=>{if(draggedExerciseIndex===null)return;e.preventDefault();e.dataTransfer.dropEffect='move';trashEl.classList.add('trash-active')});
     trashEl.addEventListener('dragleave',()=>{if(draggedExerciseIndex!==null)trashEl.classList.remove('trash-active')});
-    trashEl.addEventListener('drop',async e=>{if(draggedExerciseIndex===null)return;e.preventDefault();const index=draggedExerciseIndex;trashEl.classList.remove('trash-active');const accepted=await askConfirmation({title:`Delete Exercise ${String.fromCharCode(65+index)}?`,message:'Do you want to permanently delete this exercise and its current group setup?',acceptText:'Delete exercise',danger:true});if(accepted)deleteExercise(index)});
+    trashEl.addEventListener('drop',async e=>{if(draggedExerciseIndex===null)return;e.preventDefault();const index=draggedExerciseIndex;draggedExerciseIndex=null;tabsEl.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('exercise-dragging'));trashEl.classList.remove('trash-active');const accepted=await askConfirmation({title:`Delete Exercise ${String.fromCharCode(65+index)}?`,message:'Do you want to permanently delete this exercise and its current group setup?',acceptText:'Delete exercise',danger:true});if(accepted)deleteExercise(index)});
   }
   function activateSortables(){
     groupsEl.querySelectorAll('.player-list').forEach(list=>new Sortable(list,{group:'players',animation:170,delay:180,delayOnTouchOnly:true,touchStartThreshold:8,emptyInsertThreshold:40,swapThreshold:.65,invertSwap:true,fallbackOnBody:true,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:evt=>{if(evt.from!==evt.to)evt.item.classList.remove('dice-shuffled');updateCounts();saveActiveExercise();resetSnapshotState();autoSaveProject()}}));
