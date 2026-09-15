@@ -340,7 +340,9 @@
     groupIndexes.forEach((groupIndex,side)=>{
       const slots=TWO_TEAM_POSITION_SLOTS[side],taken=new Set(),entries=[...(grouped.get(groupIndex)||[])].sort((a,b)=>{const al=Number(a[1].level),bl=Number(b[1].level);return (Number.isFinite(al)?al:Infinity)-(Number.isFinite(bl)?bl:Infinity)||a[1].name.localeCompare(b[1].name)});
       entries.forEach(([key,data])=>{
-        const preferred=(data.positions||[]).slice(0,3);const position=preferred.find(pos=>slots[pos]&&!taken.has(pos));
+        const preferred=(data.positions||[]).slice(0,3).filter(pos=>slots[pos]);
+        let position=preferred.find(pos=>!taken.has(pos));
+        if(!preferred.length){const available=Object.keys(slots).filter(pos=>!taken.has(pos));position=available.length?available[Math.floor(Math.random()*available.length)]:null}
         if(!position){data.onPitch=false;data.x=50;data.y=50;assignments.push({key,data,onPitch:false});return}
         taken.add(position);data.onPitch=true;data.x=slots[position].x;data.y=slots[position].y;assignments.push({key,data,onPitch:true})
       })
