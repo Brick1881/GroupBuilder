@@ -332,19 +332,24 @@
   function pitchGroupCenter(i){return [{x:24,y:78},{x:76,y:22},{x:76,y:78},{x:24,y:22},{x:24,y:50},{x:76,y:50}][i]||{x:50,y:50}}
   function groupOffsets(n){if(n<=1)return [{x:0,y:0}];const cols=Math.min(3,Math.ceil(Math.sqrt(n))),rows=Math.ceil(n/cols),a=[];for(let i=0;i<n;i++)a.push({x:(i%cols-(cols-1)/2)*12,y:(Math.floor(i/cols)-(rows-1)/2)*8});return a}
   const TWO_TEAM_POSITION_SLOTS={
-    0:{K:{x:50,y:91},CB:{x:50,y:79},LB:{x:22,y:76},RB:{x:78,y:76},DM:{x:50,y:67},CM:{x:50,y:59},LW:{x:20,y:51},RW:{x:80,y:51},OM:{x:50,y:51},S:{x:50,y:45}},
-    1:{K:{x:50,y:9},CB:{x:50,y:21},LB:{x:78,y:24},RB:{x:22,y:24},DM:{x:50,y:33},CM:{x:50,y:41},LW:{x:80,y:49},RW:{x:20,y:49},OM:{x:50,y:49},S:{x:50,y:55}}
+    0:{K:[{x:50,y:92}],CB:[{x:39,y:80},{x:61,y:80}],LB:[{x:18,y:76}],RB:[{x:82,y:76}],DM:[{x:50,y:68}],CM:[{x:38,y:60},{x:62,y:60}],LW:[{x:18,y:53}],RW:[{x:82,y:53}],OM:[{x:50,y:54}],S:[{x:50,y:52}]},
+    1:{K:[{x:50,y:8}],CB:[{x:61,y:20},{x:39,y:20}],LB:[{x:82,y:24}],RB:[{x:18,y:24}],DM:[{x:50,y:32}],CM:[{x:62,y:40},{x:38,y:40}],LW:[{x:82,y:47}],RW:[{x:18,y:47}],OM:[{x:50,y:46}],S:[{x:50,y:48}]}
   };
   function placeTwoTeamsByPosition(grouped,groupIndexes){
     const assignments=[];
     groupIndexes.forEach((groupIndex,side)=>{
-      const slots=TWO_TEAM_POSITION_SLOTS[side],taken=new Set(),entries=[...(grouped.get(groupIndex)||[])].sort((a,b)=>{const al=Number(a[1].level),bl=Number(b[1].level);return (Number.isFinite(al)?al:Infinity)-(Number.isFinite(bl)?bl:Infinity)||a[1].name.localeCompare(b[1].name)});
-      entries.forEach(([key,data])=>{
-        const preferred=(data.positions||[]).slice(0,3).filter(pos=>slots[pos]);
-        let position=preferred.find(pos=>!taken.has(pos));
-        if(!preferred.length){const available=Object.keys(slots).filter(pos=>!taken.has(pos));position=available.length?available[Math.floor(Math.random()*available.length)]:null}
-        if(!position){data.onPitch=false;data.x=50;data.y=50;assignments.push({key,data,onPitch:false});return}
-        taken.add(position);data.onPitch=true;data.x=slots[position].x;data.y=slots[position].y;assignments.push({key,data,onPitch:true})
+      const slotPools=TWO_TEAM_POSITION_SLOTS[side],used={},entries=[...(grouped.get(groupIndex)||[])].sort((a,b)=>{const al=Number(a[1].level),bl=Number(b[1].level);return (Number.isFinite(al)?al:Infinity)-(Number.isFinite(bl)?bl:Infinity)||a[1].name.localeCompare(b[1].name)});
+      Object.keys(slotPools).forEach(position=>used[position]=0);
+      const takeSlot=position=>{const pool=slotPools[position]||[],index=used[position]||0;if(index>=pool.length)return null;used[position]=index+1;return pool[index]};
+      const goalkeeperIndex=entries.findIndex(([,data])=>(data.positions||[]).includes('K'));
+      if(goalkeeperIndex>=0){const [keeper]=entries.splice(goalkeeperIndex,1);entries.unshift(keeper)}
+      entries.forEach(([key,data],playerIndex)=>{
+        if(playerIndex>=11){data.onPitch=false;data.x=50;data.y=50;assignments.push({key,data,onPitch:false});return}
+        const preferred=(data.positions||[]).slice(0,3).filter(position=>slotPools[position]);let slot=null;
+        for(const position of preferred){slot=takeSlot(position);if(slot)break}
+        if(!slot&&!preferred.length){const available=[];Object.entries(slotPools).forEach(([position,pool])=>{for(let i=used[position]||0;i<pool.length;i++)available.push(position)});if(available.length)slot=takeSlot(available[Math.floor(Math.random()*available.length)])}
+        if(!slot){data.onPitch=false;data.x=50;data.y=50;assignments.push({key,data,onPitch:false});return}
+        data.onPitch=true;data.x=slot.x;data.y=slot.y;assignments.push({key,data,onPitch:true})
       })
     });
     assignments.forEach(({key,data,onPitch})=>{let card=matchPlanPage.querySelector(`.match-player[data-key="${CSS.escape(key)}"]`);if(!card)card=createMatchPlayerCard(key,data);if(onPitch){card.style.left=`${data.x}%`;card.style.top=`${data.y}%`;matchPitch.append(card)}else{card.style.left='';card.style.top='';matchBench.append(card)}})
