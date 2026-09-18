@@ -383,13 +383,13 @@
     saveMatchPlan();const [background,logo]=await Promise.all([loadPosterImage('matchday-poster-bg.png'),loadPosterImage('matchday-logo.png')]);
     const canvas=document.createElement('canvas'),W=1080,H=1350;canvas.width=W;canvas.height=H;const ctx=canvas.getContext('2d');drawImageCover(ctx,background,0,0,W,H);
     const info=state.eventInfo||{},dateTime=splitPosterDateTime(info.dateTime);
-    if(info.title)posterText(ctx,info.title,540,350,980,47,'950','center','#ffffff');
-    if(dateTime.date)posterText(ctx,dateTime.date,540,404,900,40,'900','center','#dff7ff');
-    if(dateTime.time)posterText(ctx,dateTime.time,540,450,900,40,'900','center','#dff7ff');
+    if(info.title)posterText(ctx,info.title,540,300,980,47,'950','center','#ffffff');
+    if(dateTime.date)posterText(ctx,dateTime.date,540,352,900,40,'900','center','#dff7ff');
+    if(dateTime.time)posterText(ctx,dateTime.time,540,398,900,40,'900','center','#dff7ff');
     const logoSize=126;ctx.save();ctx.shadowColor='rgba(44,205,255,.90)';ctx.shadowBlur=28;ctx.drawImage(logo,(W-logoSize)/2,14,logoSize,logoSize);ctx.restore();
-    const posterPitch={x:72,y:463,w:936,h:757};
+    const posterPitch={x:72,y:406,w:936,h:814};
     Object.values(state.matchPlan?.players||{}).filter(data=>data.onPitch).forEach(data=>{const x=posterPitch.x+(Number(data.x)||50)/100*posterPitch.w,y=posterPitch.y+(Number(data.y)||50)/100*posterPitch.h;ctx.beginPath();ctx.arc(x,y-18,24,0,Math.PI*2);ctx.fillStyle=MATCH_GROUP_COLORS[Number(data.groupIndex)]||'#fff';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.stroke();posterText(ctx,data.name,x,y+24,220,27,'900')});
-    const bench=Object.values(state.matchPlan?.players||{}).filter(data=>!data.onPitch),bw=290,bh=150,bx=W-bw-20,by=H-bh-52;ctx.fillStyle='rgba(0,25,90,.68)';ctx.strokeStyle='#43d9ff';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,14);ctx.fill();ctx.stroke();ctx.font='900 23px Inter,Arial,sans-serif';ctx.fillStyle='#fff';ctx.textAlign='right';const lineHeight=28,maxRows=Math.max(1,Math.floor((bh-18)/lineHeight));bench.slice(0,maxRows).forEach((data,index)=>ctx.fillText(`• ${data.name}`,bx+bw-14,by+29+index*lineHeight,bw-28));
+    const bench=Object.values(state.matchPlan?.players||{}).filter(data=>!data.onPitch),bw=220,bh=176,bx=W-bw-18,by=H-bh-48;ctx.fillStyle='rgba(0,25,90,.72)';ctx.strokeStyle='#43d9ff';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,14);ctx.fill();ctx.stroke();posterText(ctx,'BENCH',bx+bw-12,by+24,bw-24,25,'950','right','#61e5ff');ctx.font='900 27px Inter,Arial,sans-serif';ctx.fillStyle='#fff';ctx.textAlign='right';const lineHeight=32,maxRows=Math.max(1,Math.floor((bh-48)/lineHeight));bench.slice(0,maxRows).forEach((data,index)=>ctx.fillText(`• ${data.name}`,bx+bw-12,by+59+index*lineHeight,bw-24));
     if(info.location)posterText(ctx,info.location,34,H-32,W-68,28,'850','left','#dff7ff');return canvas
   }
   async function createMatchdayPoster(){const button=$('#matchdayPosterBtn');button.disabled=true;try{const canvas=await buildMatchdayPoster(),blob=await new Promise((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error('Poster creation failed')),'image/png'));const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='matchday-poster.png';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);toast('Matchday Poster created')}catch(error){toast(error?.message||'Could not create Matchday Poster')}finally{button.disabled=false}}
