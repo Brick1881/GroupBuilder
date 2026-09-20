@@ -468,7 +468,7 @@
     if(dateTime.date)posterText(ctx,dateTime.date,540,392,900,32,'900','center','#dff7ff');
     if(dateTime.time)posterText(ctx,dateTime.time,540,430,900,32,'900','center','#dff7ff');
     posterText(ctx,`${game.homeScore||0} - ${game.awayScore||0}`,540,502,560,70,'950','center','#ffffff');
-    const periodGroups=goalEventsByPeriod(game),headerNames=['1st half','2nd half','3rd period','4th period'],top=530,bottom=1280,totalEvents=periodGroups.reduce((n,g)=>n+g.length,0),headerHeight=42,rowHeight=Math.max(30,Math.min(40,(bottom-top-periodGroups.length*headerHeight-55)/Math.max(1,totalEvents)));let y=top;
+    const periodGroups=goalEventsByPeriod(game),headerNames=['1st half','2nd half','3rd period','4th period'],top=570,bottom=1280,totalEvents=periodGroups.reduce((n,g)=>n+g.length,0),headerHeight=42,rowHeight=Math.max(30,Math.min(40,(bottom-top-periodGroups.length*headerHeight-55)/Math.max(1,totalEvents)));let y=top;
     periodGroups.forEach((events,index)=>{posterText(ctx,headerNames[index]||`${ordinal(index+1)} period`,540,y,500,30,'950','center','#66e8ff');y+=headerHeight;events.sort((a,b)=>goalEventMinuteNumber(a)-goalEventMinuteNumber(b)).forEach(event=>{drawGoalPosterLine(ctx,event,y,game);y+=rowHeight})});
     posterText(ctx,'Full time',540,Math.min(bottom,y+18),500,34,'950','center','#66e8ff');
     if(info.location)posterText(ctx,info.location,48,H-22,W-96,25,'850','left','#dff7ff');return canvas}
