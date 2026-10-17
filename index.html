@@ -206,8 +206,9 @@
       const headerIndex=findHeader(rows);
       if(headerIndex<0) throw new Error('Could not find the Status and Navn columns.');
       const headers=rows[headerIndex].map(x=>String(x).trim().toLowerCase());
-      const statusCol=headers.indexOf('status'), nameCol=headers.indexOf('navn');
-      const importRows=rows.slice(headerIndex+1).filter(r=>String(r[10]??'').trim()!=='');
+      const statusCol=headers.indexOf('status'), nameCol=headers.indexOf('navn'), responseTimeCol=headers.indexOf('svartidspunkt');
+      if(responseTimeCol<0) throw new Error('Could not find the Svartidspunkt column.');
+      const importRows=rows.slice(headerIndex+1).filter(r=>String(r[responseTimeCol]??'').trim()!=='');
       const players=importRows
         .filter(r=>String(r[statusCol]??'').trim().toLowerCase()===STATUS)
         .map(r=>shortName(r[nameCol])).filter(Boolean);
