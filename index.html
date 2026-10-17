@@ -208,11 +208,15 @@
       const headers=rows[headerIndex].map(x=>String(x).trim().toLowerCase());
       const statusCol=headers.indexOf('status'), nameCol=headers.indexOf('navn'), responseTimeCol=headers.indexOf('svartidspunkt');
       if(responseTimeCol<0) throw new Error('Could not find the Svartidspunkt column.');
-      const importRows=rows.slice(headerIndex+1).filter(r=>String(r[responseTimeCol]??'').trim()!=='');
-      const players=importRows
-        .filter(r=>String(r[statusCol]??'').trim().toLowerCase()===STATUS)
+      const attendanceRows=rows.slice(headerIndex+1).filter(r=>shortName(r[nameCol]));
+      const players=attendanceRows
+        .filter(r=>String(r[responseTimeCol]??'').trim()!==''&&String(r[statusCol]??'').trim().toLowerCase()===STATUS)
         .map(r=>shortName(r[nameCol])).filter(Boolean);
-      const remainingPlayers=importRows.map(r=>({name:shortName(r[nameCol]),status:String(r[statusCol]??'').trim()})).filter(p=>p.name&&['ikke svart','kan ikke komme'].includes(p.status.toLowerCase()));
+      const playerKeys=new Set(players.map(normalizedName));
+      const remainingPlayers=attendanceRows
+        .filter(r=>!(String(r[responseTimeCol]??'').trim()===''&&String(r[statusCol]??'').trim().toLowerCase()===STATUS))
+        .map(r=>({name:shortName(r[nameCol]),status:String(r[statusCol]??'').trim()||'No status'}))
+        .filter(p=>p.name&&!playerKeys.has(normalizedName(p.name)));
       if(!players.length) throw new Error('No players with Status = Kommer were found.');
       state.players=players;state.remainingPlayers=remainingPlayers;state.matchPlan=null;state.matchGame=null;state.matchdayMode=false;state.tournamentResults={};state.knockoutResults={};state.sourceName=file.name;state.groupCount=3;state.eventInfo=eventInfo;state.activeTab=0;state.visibleExerciseCount=1;state.exercises=[{groupCount:3,groups:distributeByLevel(players,3)},{groupCount:3,groups:[[],[],[]]},{groupCount:3,groups:[[],[],[]]}];
       newProject(`${state.eventInfo.title||file.name} ${state.eventInfo.dateTime||""}`);showWorkspace();autoSaveProject();
