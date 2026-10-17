@@ -207,10 +207,11 @@
       if(headerIndex<0) throw new Error('Could not find the Status and Navn columns.');
       const headers=rows[headerIndex].map(x=>String(x).trim().toLowerCase());
       const statusCol=headers.indexOf('status'), nameCol=headers.indexOf('navn');
-      const players=rows.slice(headerIndex+1)
+      const importRows=rows.slice(headerIndex+1).filter(r=>String(r[10]??'').trim()!=='');
+      const players=importRows
         .filter(r=>String(r[statusCol]??'').trim().toLowerCase()===STATUS)
         .map(r=>shortName(r[nameCol])).filter(Boolean);
-      const remainingPlayers=rows.slice(headerIndex+1).map(r=>({name:shortName(r[nameCol]),status:String(r[statusCol]??'').trim()})).filter(p=>p.name&&['ikke svart','kan ikke komme'].includes(p.status.toLowerCase()));
+      const remainingPlayers=importRows.map(r=>({name:shortName(r[nameCol]),status:String(r[statusCol]??'').trim()})).filter(p=>p.name&&['ikke svart','kan ikke komme'].includes(p.status.toLowerCase()));
       if(!players.length) throw new Error('No players with Status = Kommer were found.');
       state.players=players;state.remainingPlayers=remainingPlayers;state.matchPlan=null;state.sourceName=file.name;state.groupCount=3;state.eventInfo=eventInfo;state.activeTab=0;state.visibleExerciseCount=1;state.exercises=Array.from({length:3},()=>({groupCount:3,groups:distributeByLevel(players,3)}));
       newProject(`${state.eventInfo.title||file.name} ${state.eventInfo.dateTime||""}`);showWorkspace();autoSaveProject();
